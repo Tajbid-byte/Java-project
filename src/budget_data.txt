@@ -1,0 +1,11 @@
+1. Education: 700
+2. Agriculture: 0
+3. Local Government: 800
+4. Rural Development: 0
+5. Electricity and Fuel: 0
+6. Health: 0
+7. Defense: 0
+8. Public Administration: 0
+9. Transportation and Communication: 0
+10. Social Safety: 0
+11. Upcoming Mega Project: 0
