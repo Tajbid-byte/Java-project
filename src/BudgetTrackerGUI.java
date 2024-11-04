@@ -12,6 +12,7 @@ public class BudgetTrackerGUI extends JFrame {
     private BigDecimal totalBudget;
     private JLabel totalBudgetLabel;
     private JLabel remainingBudgetLabel;
+    private JPanel analysisPanel; // Store reference to Analysis panel for refreshing
 
     public BudgetTrackerGUI() {
         this.totalBudget = BigDecimal.ZERO;
@@ -29,7 +30,8 @@ public class BudgetTrackerGUI extends JFrame {
         mainPanel.add(createOverviewPanel(), "Dashboard");
         mainPanel.add(createMyExpensesPanel(), "My Expenses");
         mainPanel.add(createSettingsPanel(), "Settings");
-        mainPanel.add(createAnalysisPanel(), "Analysis");
+        analysisPanel = createAnalysisPanel(); // Initialize analysisPanel here
+        mainPanel.add(analysisPanel, "Analysis");
         mainPanel.add(createProfilePanel(), "Profile");
 
         add(createSidebar(), BorderLayout.WEST);
@@ -147,6 +149,14 @@ public class BudgetTrackerGUI extends JFrame {
         return panel;
     }
 
+    private void refreshAnalysisPanel() {
+        mainPanel.remove(analysisPanel);
+        analysisPanel = createAnalysisPanel();
+        mainPanel.add(analysisPanel, "Analysis");
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
+
     private JPanel createAnalysisPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
@@ -155,10 +165,36 @@ public class BudgetTrackerGUI extends JFrame {
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setForeground(new Color(90, 60, 150));
 
-        JTextArea analysisArea = new JTextArea("Analysis content goes here...");
-        analysisArea.setEditable(false);
+        JPanel analysisContentPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+        analysisContentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        analysisContentPanel.setBackground(new Color(230, 240, 255));
+
+        JPanel allocatedPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+        allocatedPanel.setBorder(BorderFactory.createTitledBorder("Allocated Sectors"));
+        allocatedPanel.setBackground(Color.decode("#e0ffe0"));
+
+        JPanel nonAllocatedPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+        nonAllocatedPanel.setBorder(BorderFactory.createTitledBorder("Non-Allocated Sectors"));
+        nonAllocatedPanel.setBackground(Color.decode("#ffe0e0"));
+
+        for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
+            JLabel sectorLabel = new JLabel(entry.getKey() + ": $" + entry.getValue());
+            sectorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+
+            if (entry.getValue().compareTo(BigDecimal.ZERO) > 0) {
+                sectorLabel.setForeground(Color.decode("#006400"));
+                allocatedPanel.add(sectorLabel);
+            } else {
+                sectorLabel.setForeground(Color.decode("#8b0000"));
+                nonAllocatedPanel.add(sectorLabel);
+            }
+        }
+
+        analysisContentPanel.add(allocatedPanel);
+        analysisContentPanel.add(nonAllocatedPanel);
+
         panel.add(titleLabel, BorderLayout.NORTH);
-        panel.add(new JScrollPane(analysisArea), BorderLayout.CENTER);
+        panel.add(new JScrollPane(analysisContentPanel), BorderLayout.CENTER);
 
         return panel;
     }
@@ -181,74 +217,71 @@ public class BudgetTrackerGUI extends JFrame {
 
     private JPanel createSidebar() {
         JPanel sidebar = new JPanel();
-        sidebar.setLayout(new GridLayout(0, 1));
+        sidebar.setLayout(new GridLayout(5, 1, 5, 5)); // Add spacing for alignment
         sidebar.setBackground(new Color(40, 44, 52));
         sidebar.setPreferredSize(new Dimension(150, getHeight()));
-
+    
         String[] buttonLabels = {"Dashboard", "My Expenses", "Analysis", "Profile", "Settings"};
         String[] iconPaths = {"dashboard.png", "budget.png", "analysis.png", "user1.png", "settings.png"};
-
+    
         for (int i = 0; i < buttonLabels.length; i++) {
             final String label = buttonLabels[i];
             ImageIcon icon = new ImageIcon(iconPaths[i]);
             JButton button = new JButton(label, icon);
+            
             button.setHorizontalTextPosition(SwingConstants.CENTER);
             button.setVerticalTextPosition(SwingConstants.BOTTOM);
             button.setBackground(new Color(40, 44, 52));
             button.setForeground(Color.WHITE);
             button.setFont(new Font("Segoe UI", Font.PLAIN, 14));
             button.setFocusPainted(false);
-            button.setBorderPainted(false);
-
+            button.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5)); // Adjust padding
+    
             button.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseEntered(java.awt.event.MouseEvent evt) {
                     button.setBackground(new Color(29, 255, 236));
                 }
-
                 public void mouseExited(java.awt.event.MouseEvent evt) {
                     button.setBackground(new Color(40, 44, 52));
                 }
-
                 public void mouseClicked(java.awt.event.MouseEvent evt) {
                     cardLayout.show(mainPanel, label);
                 }
             });
-
+    
             sidebar.add(button);
         }
-
+    
         return sidebar;
     }
-
+    
     private void setTotalBudget() {
-        String input = JOptionPane.showInputDialog(this, "Enter total budget:");
-        if (input != null) {
-            try {
-                totalBudget = new BigDecimal(input);
-                totalBudgetLabel.setText("Total Budget: $" + totalBudget);
-                remainingBudgetLabel.setText("Remaining Budget: $" + calculateRemainingBudget());
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.");
-            }
+        String input = JOptionPane.showInputDialog(this, "Enter total budget:", totalBudget);
+        try {
+            totalBudget = new BigDecimal(input);
+            totalBudgetLabel.setText("Total Budget: $" + totalBudget);
+            remainingBudgetLabel.setText("Remaining Budget: $" + calculateRemainingBudget());
+            refreshAnalysisPanel(); // Refresh Analysis panel after setting the total budget
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid budget amount.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void allocateBudget(String sector) {
+        String input = JOptionPane.showInputDialog(this, "Allocate budget to " + sector + ":", sectors.get(sector));
+        try {
+            BigDecimal allocation = new BigDecimal(input);
+            sectors.put(sector, allocation);
+            remainingBudgetLabel.setText("Remaining Budget: $" + calculateRemainingBudget());
+            refreshAnalysisPanel(); // Refresh Analysis panel after budget allocation
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid allocation amount.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private BigDecimal calculateRemainingBudget() {
-        BigDecimal totalExpenses = sectors.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        return totalBudget.subtract(totalExpenses);
-    }
-
-    private void allocateBudget(String sector) {
-        String input = JOptionPane.showInputDialog(this, "Enter amount for " + sector + ":");
-        if (input != null) {
-            try {
-                BigDecimal amount = new BigDecimal(input);
-                sectors.put(sector, sectors.get(sector).add(amount));
-                remainingBudgetLabel.setText("Remaining Budget: $" + calculateRemainingBudget());
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.");
-            }
-        }
+        BigDecimal allocatedSum = sectors.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        return totalBudget.subtract(allocatedSum);
     }
 
     public static void main(String[] args) {
