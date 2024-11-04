@@ -77,8 +77,8 @@ public class LoginFrame extends JFrame {
                 // Successful login
                 JOptionPane.showMessageDialog(null, "Login Successful!");
 
-                // Launch the BudgetTrackerGUI
-                BudgetTrackerGUI budgetTrackerGUI = new BudgetTrackerGUI(new BigDecimal("10000.00"));
+                // Launch the BudgetTrackerGUI without any initial budget
+                BudgetTrackerGUI budgetTrackerGUI = new BudgetTrackerGUI(); // No initial budget needed
                 budgetTrackerGUI.setVisible(true);
                 dispose(); // Close the login frame
             } else {
