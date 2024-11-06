@@ -4,6 +4,8 @@ import java.awt.*;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class BudgetTrackerGUI extends JFrame {
     private CardLayout cardLayout;
@@ -13,6 +15,7 @@ public class BudgetTrackerGUI extends JFrame {
     private JLabel totalBudgetLabel;
     private JLabel remainingBudgetLabel;
     private JPanel analysisPanel; // Store reference to Analysis panel for refreshing
+    private JPanel sidebar; // Sidebar panel to be added later
 
     public BudgetTrackerGUI() {
         this.totalBudget = BigDecimal.ZERO;
@@ -27,6 +30,7 @@ public class BudgetTrackerGUI extends JFrame {
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
+        mainPanel.add(createIntroScreen(), "Intro");  // Added intro screen
         mainPanel.add(createOverviewPanel(), "Dashboard");
         mainPanel.add(createMyExpensesPanel(), "My Expenses");
         mainPanel.add(createSettingsPanel(), "Settings");
@@ -34,8 +38,14 @@ public class BudgetTrackerGUI extends JFrame {
         mainPanel.add(analysisPanel, "Analysis");
         mainPanel.add(createProfilePanel(), "Profile");
 
-        add(createSidebar(), BorderLayout.WEST);
+        // Initially, add only the main panel without the sidebar
         add(mainPanel, BorderLayout.CENTER);
+
+        // Create sidebar but don't add it yet
+        sidebar = createSidebar();
+
+        // Show the intro screen initially
+        cardLayout.show(mainPanel, "Intro");
 
         setVisible(true);
     }
@@ -53,6 +63,90 @@ public class BudgetTrackerGUI extends JFrame {
         sectors.put("Social Safety", BigDecimal.ZERO);
         sectors.put("Mega Projects", BigDecimal.ZERO);
     }
+
+   
+    private JPanel createIntroScreen() {
+        JPanel introPanel = new JPanel();
+        introPanel.setLayout(new BorderLayout());
+        introPanel.setBackground(new Color(220, 240, 250));
+    
+        // Description label
+        JLabel descriptionLabel = new JLabel("<html><div style='text-align: center;'>Save your money with Expense Tracker</div></html>", SwingConstants.CENTER);
+        descriptionLabel.setFont(new Font("Segoe UI", Font.BOLD, 25));
+        descriptionLabel.setForeground(new Color(0, 0, 0));
+        introPanel.add(descriptionLabel, BorderLayout.CENTER);
+    
+        // Create rounded button with hover effect
+        JButton startButton = new JButton("Let's Start") {
+            private boolean hover = false;
+    
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Set color based on hover state
+                if (hover) {
+                    g2.setColor(new Color(29, 255, 36)); // Hover color
+                } else {
+                    g2.setColor(new Color(127, 0, 255)); // Default color
+                }
+    
+                // Draw rounded rectangle background
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20); // Rounded corners
+                g2.dispose();
+    
+                super.paintComponent(g);
+            }
+        };
+        
+        startButton.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Font size
+        startButton.setForeground(Color.WHITE); // Text color
+        startButton.setFocusPainted(false);
+        startButton.setContentAreaFilled(false); // Remove default background
+        startButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Padding for rounder look
+    
+        // Add hover effect to button
+        startButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                startButton.setPreferredSize(new Dimension(130, 40)); // Increase size slightly on hover
+                startButton.setFont(new Font("Segoe UI", Font.PLAIN, 15)); // Increase font slightly on hover
+                startButton.setForeground(new Color(29, 255, 36)); // Change text color on hover
+                startButton.revalidate();
+                startButton.repaint();
+            }
+    
+            @Override
+            public void mouseExited(MouseEvent e) {
+                startButton.setPreferredSize(new Dimension(120, 35)); // Return to original size
+                startButton.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Return to original font size
+                startButton.setForeground(Color.WHITE); // Return text color to white
+                startButton.revalidate();
+                startButton.repaint();
+            }
+        });
+    
+        // Action listener for button
+        startButton.addActionListener(e -> {
+            add(sidebar, BorderLayout.WEST);
+            cardLayout.show(mainPanel, "Dashboard");
+            revalidate();
+            repaint();
+        });
+    
+        // Center the button within a FlowLayout to control its size
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBackground(new Color(220, 240, 250)); // Match background color
+        buttonPanel.add(startButton); // Add the button to the flow layout panel
+    
+        introPanel.add(buttonPanel, BorderLayout.SOUTH); // Add the button panel to the intro panel
+    
+        return introPanel;
+    }
+    
+    
+    
 
     private JPanel createOverviewPanel() {
         JPanel panel = new JPanel();
@@ -182,10 +276,8 @@ public class BudgetTrackerGUI extends JFrame {
             sectorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 
             if (entry.getValue().compareTo(BigDecimal.ZERO) > 0) {
-                sectorLabel.setForeground(Color.decode("#006400"));
                 allocatedPanel.add(sectorLabel);
             } else {
-                sectorLabel.setForeground(Color.decode("#8b0000"));
                 nonAllocatedPanel.add(sectorLabel);
             }
         }
@@ -207,28 +299,27 @@ public class BudgetTrackerGUI extends JFrame {
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setForeground(new Color(90, 60, 150));
 
-        JTextArea profileArea = new JTextArea("Profile content goes here...");
-        profileArea.setEditable(false);
         panel.add(titleLabel, BorderLayout.NORTH);
-        panel.add(new JScrollPane(profileArea), BorderLayout.CENTER);
 
         return panel;
     }
-
     private JPanel createSidebar() {
+        // Create the sidebar and set up layout
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new GridLayout(5, 1, 5, 5)); // Add spacing for alignment
         sidebar.setBackground(new Color(40, 44, 52));
-        sidebar.setPreferredSize(new Dimension(150, getHeight()));
+        sidebar.setPreferredSize(new Dimension(150, getHeight()));  // Set the preferred size
     
+        // Define button labels and corresponding icon paths
         String[] buttonLabels = {"Dashboard", "My Expenses", "Analysis", "Profile", "Settings"};
         String[] iconPaths = {"dashboard.png", "budget.png", "analysis.png", "user1.png", "settings.png"};
     
         for (int i = 0; i < buttonLabels.length; i++) {
             final String label = buttonLabels[i];
-            ImageIcon icon = new ImageIcon(iconPaths[i]);
+            ImageIcon icon = new ImageIcon(iconPaths[i]); // Load icon for each button
             JButton button = new JButton(label, icon);
             
+            // Set the button's layout and appearance
             button.setHorizontalTextPosition(SwingConstants.CENTER);
             button.setVerticalTextPosition(SwingConstants.BOTTOM);
             button.setBackground(new Color(40, 44, 52));
@@ -237,6 +328,7 @@ public class BudgetTrackerGUI extends JFrame {
             button.setFocusPainted(false);
             button.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5)); // Adjust padding
     
+            // Change button background color when hovered over
             button.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseEntered(java.awt.event.MouseEvent evt) {
                     button.setBackground(new Color(29, 255, 236));
@@ -245,46 +337,49 @@ public class BudgetTrackerGUI extends JFrame {
                     button.setBackground(new Color(40, 44, 52));
                 }
                 public void mouseClicked(java.awt.event.MouseEvent evt) {
-                    cardLayout.show(mainPanel, label);
+                    cardLayout.show(mainPanel, label); // Switch to the panel corresponding to the button clicked
                 }
             });
     
-            sidebar.add(button);
+            sidebar.add(button); // Add the button to the sidebar
         }
     
         return sidebar;
     }
     
+
+
     private void setTotalBudget() {
-        String input = JOptionPane.showInputDialog(this, "Enter total budget:", totalBudget);
+        String input = JOptionPane.showInputDialog(this, "Enter Total Budget:");
         try {
             totalBudget = new BigDecimal(input);
-            totalBudgetLabel.setText("Total Budget: $" + totalBudget);
-            remainingBudgetLabel.setText("Remaining Budget: $" + calculateRemainingBudget());
-            refreshAnalysisPanel(); // Refresh Analysis panel after setting the total budget
+            totalBudgetLabel.setText("Total Budget: " + totalBudget);
+            remainingBudgetLabel.setText("Remaining Budget: " + calculateRemainingBudget());
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid budget amount.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void allocateBudget(String sector) {
-        String input = JOptionPane.showInputDialog(this, "Allocate budget to " + sector + ":", sectors.get(sector));
-        try {
-            BigDecimal allocation = new BigDecimal(input);
-            sectors.put(sector, allocation);
-            remainingBudgetLabel.setText("Remaining Budget: $" + calculateRemainingBudget());
-            refreshAnalysisPanel(); // Refresh Analysis panel after budget allocation
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid allocation amount.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.");
         }
     }
 
     private BigDecimal calculateRemainingBudget() {
-        BigDecimal allocatedSum = sectors.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        return totalBudget.subtract(allocatedSum);
+        BigDecimal allocatedBudget = BigDecimal.ZERO;
+        for (BigDecimal amount : sectors.values()) {
+            allocatedBudget = allocatedBudget.add(amount);
+        }
+        return totalBudget.subtract(allocatedBudget);
+    }
+
+    private void allocateBudget(String sector) {
+        String input = JOptionPane.showInputDialog(this, "Enter amount to allocate to " + sector + ":");
+        try {
+            BigDecimal allocation = new BigDecimal(input);
+            sectors.put(sector, allocation);
+            refreshAnalysisPanel();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.");
+        }
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(BudgetTrackerGUI::new);
+        SwingUtilities.invokeLater(() -> new BudgetTrackerGUI());
     }
 }
