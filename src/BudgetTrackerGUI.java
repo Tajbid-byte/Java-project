@@ -6,6 +6,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
+import java.awt.geom.Ellipse2D;
 
 public class BudgetTrackerGUI extends JFrame {
     private CardLayout cardLayout;
@@ -63,18 +66,34 @@ public class BudgetTrackerGUI extends JFrame {
         sectors.put("Social Safety", BigDecimal.ZERO);
         sectors.put("Mega Projects", BigDecimal.ZERO);
     }
-
-   
     private JPanel createIntroScreen() {
         JPanel introPanel = new JPanel();
         introPanel.setLayout(new BorderLayout());
         introPanel.setBackground(new Color(220, 240, 250));
     
+        // Load the image and resize it appropriately
+        ImageIcon imageIcon = new ImageIcon("icon.png"); // Provide the path to your image
+        Image image = imageIcon.getImage(); // Convert to Image object
+    
+        // Resize the image to a more reasonable size (e.g., 600x600)
+        Image resizedImage = image.getScaledInstance(600, 600, Image.SCALE_SMOOTH);
+        imageIcon = new ImageIcon(resizedImage); // Re-create the ImageIcon with resized image
+    
+        // Create a label with the round image
+        JLabel imageLabel = new JLabel(new ImageIcon(createRoundImage(resizedImage, 600, 600)));
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER); // Center the image
+    
+        // Set a preferred size for the JLabel to ensure it gets the correct size
+        imageLabel.setPreferredSize(new Dimension(600, 600)); // Set the size of the image label
+    
         // Description label
         JLabel descriptionLabel = new JLabel("<html><div style='text-align: center;'>Save your money with Expense Tracker</div></html>", SwingConstants.CENTER);
         descriptionLabel.setFont(new Font("Segoe UI", Font.BOLD, 25));
         descriptionLabel.setForeground(new Color(0, 0, 0));
-        introPanel.add(descriptionLabel, BorderLayout.CENTER);
+    
+        // Add the image and description to the intro panel
+        introPanel.add(imageLabel, BorderLayout.NORTH); // Add image at the top
+        introPanel.add(descriptionLabel, BorderLayout.CENTER); // Add description below the image
     
         // Create rounded button with hover effect
         JButton startButton = new JButton("Let's Start") {
@@ -84,7 +103,7 @@ public class BudgetTrackerGUI extends JFrame {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
+    
                 // Set color based on hover state
                 if (hover) {
                     g2.setColor(new Color(29, 255, 36)); // Hover color
@@ -99,7 +118,7 @@ public class BudgetTrackerGUI extends JFrame {
                 super.paintComponent(g);
             }
         };
-        
+    
         startButton.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Font size
         startButton.setForeground(Color.WHITE); // Text color
         startButton.setFocusPainted(false);
@@ -145,9 +164,18 @@ public class BudgetTrackerGUI extends JFrame {
         return introPanel;
     }
     
+    // Helper method to create a round image
+    private Image createRoundImage(Image src, int width, int height) {
+        BufferedImage buffered = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = buffered.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setClip(new Ellipse2D.Float(0, 0, width, height));
+        g2.drawImage(src, 0, 0, null);
+        g2.dispose();
+        return buffered;
+    }
     
     
-
     private JPanel createOverviewPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
