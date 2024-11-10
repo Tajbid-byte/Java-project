@@ -280,44 +280,76 @@ public class BudgetTrackerGUI extends JFrame {
     }
 
     private JPanel createAnalysisPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-
+        JPanel panel = new JPanel(new BorderLayout());
+    
         JLabel titleLabel = new JLabel("Analysis", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setForeground(new Color(90, 60, 150));
-
-        JPanel analysisContentPanel = new JPanel(new GridLayout(0, 1, 10, 10));
-        analysisContentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        analysisContentPanel.setBackground(new Color(230, 240, 255));
-
+    
+        // Create a container with a GridLayout for equal-width columns
+        JPanel sectorPanelsContainer = new JPanel(new GridLayout(1, 2, 10, 0));
+        sectorPanelsContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
+        sectorPanelsContainer.setBackground(new Color(230, 240, 255));
+    
+        // Allocated panel on the left
         JPanel allocatedPanel = new JPanel(new GridLayout(0, 1, 5, 5));
         allocatedPanel.setBorder(BorderFactory.createTitledBorder("Allocated Sectors"));
         allocatedPanel.setBackground(Color.decode("#e0ffe0"));
-
+    
+        // Non-allocated panel on the right
         JPanel nonAllocatedPanel = new JPanel(new GridLayout(0, 1, 5, 5));
         nonAllocatedPanel.setBorder(BorderFactory.createTitledBorder("Non-Allocated Sectors"));
         nonAllocatedPanel.setBackground(Color.decode("#ffe0e0"));
-
+    
+        // Populate allocated and non-allocated panels
         for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
             JLabel sectorLabel = new JLabel(entry.getKey() + ": $" + entry.getValue());
             sectorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-
+    
             if (entry.getValue().compareTo(BigDecimal.ZERO) > 0) {
                 allocatedPanel.add(sectorLabel);
             } else {
                 nonAllocatedPanel.add(sectorLabel);
             }
         }
-
-        analysisContentPanel.add(allocatedPanel);
-        analysisContentPanel.add(nonAllocatedPanel);
-
+    
+        // Add both panels to the container for equal widths
+        sectorPanelsContainer.add(allocatedPanel);
+        sectorPanelsContainer.add(nonAllocatedPanel);
+    
+        // Centered visualization button below the panels
+        JPanel visualizationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton visualizationButton = new JButton("Visualization");
+        visualizationButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        visualizationButton.setBackground(new Color(33, 150, 243));
+        visualizationButton.setForeground(Color.WHITE);
+        visualizationButton.setFocusPainted(false);
+        visualizationButton.setPreferredSize(new Dimension(150, 50)); // Adjust size as needed
+    
+        // Add hover effect to the visualization button
+        Color originalColor = visualizationButton.getBackground();
+        visualizationButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                visualizationButton.setBackground(new Color(29, 255, 236)); // Hover color
+            }
+    
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                visualizationButton.setBackground(originalColor); // Revert to original color
+            }
+        });
+    
+        visualizationPanel.add(visualizationButton);
+    
+        // Add components to the main analysis panel
         panel.add(titleLabel, BorderLayout.NORTH);
-        panel.add(new JScrollPane(analysisContentPanel), BorderLayout.CENTER);
-
+        panel.add(sectorPanelsContainer, BorderLayout.CENTER);
+        panel.add(visualizationPanel, BorderLayout.SOUTH);
+    
         return panel;
     }
+    
 
     private JPanel createProfilePanel() {
         JPanel panel = new JPanel();
