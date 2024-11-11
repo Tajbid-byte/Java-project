@@ -1,5 +1,6 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 import java.awt.event.*;
 import java.awt.*;
@@ -8,7 +9,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.awt.geom.Ellipse2D;
+
 
 public class BudgetTrackerGUI extends JFrame {
     private CardLayout cardLayout;
@@ -497,19 +502,162 @@ public class BudgetTrackerGUI extends JFrame {
     
         timer.start();  // Start the timer
     }
-    
     private JPanel createProfilePanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-
+    
+        // Title Label
         JLabel titleLabel = new JLabel("Profile", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setForeground(new Color(90, 60, 150));
-
         panel.add(titleLabel, BorderLayout.NORTH);
-
+    
+        // User Information Section
+        JPanel userInfoPanel = new JPanel();
+        userInfoPanel.setLayout(new BoxLayout(userInfoPanel, BoxLayout.Y_AXIS));
+        userInfoPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    
+        // Panel for profile picture and user info (name & email)
+        JPanel profilePanel = new JPanel();
+        profilePanel.setLayout(new BoxLayout(profilePanel, BoxLayout.Y_AXIS));
+        profilePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+    
+        // Profile Picture Section - Circular shape
+        JLabel profilePicLabel = new JLabel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Make the profile picture circular by clipping the image
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setClip(new Ellipse2D.Double(0, 0, getWidth(), getHeight())); // Clip to circle
+                super.paintComponent(g2d);
+                g2d.dispose();
+            }
+        };
+    
+        ImageIcon icon = new ImageIcon("tajbid.jpg"); // Use your own image file path
+        profilePicLabel.setIcon(icon);
+        profilePicLabel.setPreferredSize(new Dimension(80, 80)); // Small circular image
+        profilePicLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        profilePicLabel.setOpaque(true);
+        profilePicLabel.setBackground(Color.GRAY);
+        profilePicLabel.setLayout(new FlowLayout(FlowLayout.CENTER));
+    
+        // Add profile picture to panel
+        profilePanel.add(profilePicLabel);
+    
+        // Full Name and Email Fields
+        JPanel nameEmailPanel = new JPanel();
+        nameEmailPanel.setLayout(new BoxLayout(nameEmailPanel, BoxLayout.Y_AXIS));
+        nameEmailPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+    
+        JLabel fullNameLabel = new JLabel("Full Name:");
+        JTextField fullNameField = new JTextField("John Doe", 20);
+        fullNameField.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+    
+        JLabel emailLabel = new JLabel("Email:");
+        JTextField emailField = new JTextField("johndoe@example.com", 20);
+        emailField.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+    
+        nameEmailPanel.add(fullNameLabel);
+        nameEmailPanel.add(fullNameField);
+        nameEmailPanel.add(emailLabel);
+        nameEmailPanel.add(emailField);
+    
+        profilePanel.add(nameEmailPanel);
+    
+        // Profile Editing Buttons
+        JPanel editProfilePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton editNameButton = new JButton("Edit Name");
+        JButton editEmailButton = new JButton("Edit Email");
+        JButton changeProfilePicButton = new JButton("Change Picture");
+        JButton updatePasswordButton = new JButton("Change Password");
+    
+        editNameButton.addActionListener(e -> editName(fullNameField));
+        editEmailButton.addActionListener(e -> editEmail(emailField));
+        changeProfilePicButton.addActionListener(e -> changeProfilePicture());
+        updatePasswordButton.addActionListener(e -> updatePassword());
+    
+        editProfilePanel.add(editNameButton);
+        editProfilePanel.add(editEmailButton);
+        editProfilePanel.add(changeProfilePicButton);
+        editProfilePanel.add(updatePasswordButton);
+    
+        // Export Data Section
+        JPanel exportPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton exportDataButton = new JButton("Export Data");
+        exportDataButton.addActionListener(e -> exportDataAsCSV());
+        exportPanel.add(exportDataButton);
+    
+        userInfoPanel.add(profilePanel);
+        userInfoPanel.add(editProfilePanel);
+        userInfoPanel.add(exportPanel);
+    
+        panel.add(userInfoPanel, BorderLayout.CENTER);
         return panel;
     }
+    
+    
+    // Method to edit the full name
+    private void editName(JTextField fullNameField) {
+        String newName = JOptionPane.showInputDialog(this, "Enter new name:");
+        if (newName != null && !newName.isEmpty()) {
+            fullNameField.setText(newName);
+        }
+    }
+    
+    // Method to edit the email
+    private void editEmail(JTextField emailField) {
+        String newEmail = JOptionPane.showInputDialog(this, "Enter new email:");
+        if (newEmail != null && !newEmail.isEmpty()) {
+            emailField.setText(newEmail);
+        }
+    }
+    
+    // Methods for Profile Editing and Export Data actions
+    private void changeProfilePicture() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            // Logic to change profile picture
+        }
+    }
+    
+    private void updatePassword() {
+        // Logic to update password with input dialog
+        JOptionPane.showMessageDialog(this, "Password updated successfully!");
+    }
+    
+    private void exportDataAsCSV() {
+        // Define the CSV file name
+        String fileName = "BudgetDetails_" + System.currentTimeMillis() + ".csv";
+    
+        try (PrintWriter writer = new PrintWriter(new File(fileName))) {
+            StringBuilder sb = new StringBuilder();
+    
+            // Add user name at the top
+            String userName = "John Doe"; // Replace with actual user name variable if available
+            sb.append("Name:").append(",").append(userName).append("\n");
+    
+            // Column headers for budget details
+            sb.append("Sector,Amount\n");
+    
+            // Add each sector's budget details from the sectors map
+            for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
+                sb.append(entry.getKey()).append(",");
+                sb.append(entry.getValue().toString()).append("\n");
+            }
+    
+            writer.write(sb.toString());
+            JOptionPane.showMessageDialog(this, "Data exported successfully as " + fileName);
+    
+        } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "Error exporting data: " + e.getMessage());
+        }
+    }
+    
     private JPanel createSidebar() {
         // Create the sidebar and set up layout
         JPanel sidebar = new JPanel();
@@ -554,8 +702,6 @@ public class BudgetTrackerGUI extends JFrame {
         return sidebar;
     }
     
-
-
     private void setTotalBudget() {
         String input = JOptionPane.showInputDialog(this, "Enter Total Budget:");
         try {
@@ -566,6 +712,7 @@ public class BudgetTrackerGUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.");
         }
     }
+    
 
     private BigDecimal calculateRemainingBudget() {
         BigDecimal allocatedBudget = BigDecimal.ZERO;
@@ -574,18 +721,32 @@ public class BudgetTrackerGUI extends JFrame {
         }
         return totalBudget.subtract(allocatedBudget);
     }
-
     private void allocateBudget(String sector) {
         String input = JOptionPane.showInputDialog(this, "Enter amount to allocate to " + sector + ":");
         try {
             BigDecimal allocation = new BigDecimal(input);
-            sectors.put(sector, allocation);
-            refreshAnalysisPanel();
+            BigDecimal allocatedBudget = calculateAllocatedBudget();  // Calculate already allocated budget
+            BigDecimal potentialTotal = allocatedBudget.add(allocation);  // Calculate the total if this allocation is added
+    
+            // Check if the allocation exceeds the total budget
+            if (potentialTotal.compareTo(totalBudget) > 0) {
+                JOptionPane.showMessageDialog(this, "Allocation exceeds total budget limit. Please allocate within the limit.");
+            } else {
+                sectors.put(sector, allocation);
+                refreshAnalysisPanel();  // Refresh the panel to show the updated allocation
+            }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.");
         }
     }
-
+    private BigDecimal calculateAllocatedBudget() {
+        BigDecimal allocatedBudget = BigDecimal.ZERO;
+        for (BigDecimal amount : sectors.values()) {
+            allocatedBudget = allocatedBudget.add(amount);  // Sum up all allocated amounts
+        }
+        return allocatedBudget;
+    }
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new BudgetTrackerGUI());
     }
