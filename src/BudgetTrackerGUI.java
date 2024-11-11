@@ -1,11 +1,11 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicProgressBarUI;
+import java.awt.event.*;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.awt.geom.Ellipse2D;
@@ -301,7 +301,7 @@ public class BudgetTrackerGUI extends JFrame {
         nonAllocatedPanel.setBorder(BorderFactory.createTitledBorder("Non-Allocated Sectors"));
         nonAllocatedPanel.setBackground(Color.decode("#ffe0e0"));
     
-        // Populate allocated and non-allocated panels
+        // Populate allocated and non-allocated panels with labels
         for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
             JLabel sectorLabel = new JLabel(entry.getKey() + ": $" + entry.getValue());
             sectorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
@@ -340,6 +340,11 @@ public class BudgetTrackerGUI extends JFrame {
             }
         });
     
+        // Action listener for visualization button
+        visualizationButton.addActionListener(e -> {
+            showProgressBar();
+        });
+    
         visualizationPanel.add(visualizationButton);
     
         // Add components to the main analysis panel
@@ -350,7 +355,149 @@ public class BudgetTrackerGUI extends JFrame {
         return panel;
     }
     
-
+    private void showProgressBar() {
+        JPanel progressPanel = new JPanel();
+        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.Y_AXIS));
+        progressPanel.setBackground(Color.WHITE);
+    
+        // Calculate total and allocated budget
+        BigDecimal allocatedBudget = BigDecimal.ZERO;
+        for (BigDecimal amount : sectors.values()) {
+            allocatedBudget = allocatedBudget.add(amount);
+        }
+    
+        // Calculate remaining budget
+        BigDecimal remainingBudget = totalBudget.subtract(allocatedBudget);
+    
+        // Loop over sectors to create progress bars
+        for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
+            if (entry.getValue().compareTo(BigDecimal.ZERO) > 0) {
+                // Calculate percentage for each sector based on total budget
+                int percentage = entry.getValue().multiply(BigDecimal.valueOf(100))
+                        .divide(totalBudget, 0, BigDecimal.ROUND_HALF_UP).intValue();
+    
+                // Create a custom progress bar for each allocated sector
+                JProgressBar sectorProgressBar = new JProgressBar(0, 100);
+                sectorProgressBar.setValue(percentage);
+                sectorProgressBar.setStringPainted(true);  // Enable the default string painted
+    
+                // Modern custom design (rounded corners, gradient color)
+                sectorProgressBar.setOpaque(false);
+                sectorProgressBar.setForeground(new Color(33, 150, 243));  // Color of the progress
+                sectorProgressBar.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));  // Remove default border
+                sectorProgressBar.setUI(new BasicProgressBarUI() {
+                    @Override
+                    protected Color getSelectionBackground() {
+                        return new Color(33, 150, 243);  // Blue
+                    }
+    
+                    @Override
+                    public void paint(Graphics g, JComponent c) {
+                        Graphics2D g2d = (Graphics2D) g;
+                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON); // For better text rendering
+    
+                        // Cast the JComponent to JProgressBar
+                        JProgressBar progressBar = (JProgressBar) c;
+    
+                        // Get the progress value as a percentage
+                        int value = progressBar.getValue();
+                        int max = progressBar.getMaximum();
+                        int percentage = (int) ((double) value / max * 100);
+    
+                        // Set a gradient background
+                        GradientPaint gradient = new GradientPaint(0, 0, new Color(33, 150, 243), 0, c.getHeight(), new Color(29, 255, 236));
+                        g2d.setPaint(gradient);
+    
+                        // Paint the background
+                        g2d.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 15, 15);  // Rounded corners
+    
+                        // Paint the filled portion (progress)
+                        g2d.setColor(new Color(33, 150, 243));  // Progress color
+                        g2d.fillRoundRect(0, 0, (int) (c.getWidth() * ((double) value / max)), c.getHeight(), 15, 15);  // Rounded corners for progress
+    
+                        // Set text color to pure white
+                        g2d.setColor(Color.WHITE);
+    
+                        // Increase the font size for the percentage text
+                        Font percentageFont = new Font("Segoe UI", Font.BOLD, 24);  // Larger font size
+                        g2d.setFont(percentageFont);
+    
+                        // Draw the percentage text in white
+                        String text = percentage + "%";
+                        FontMetrics metrics = g2d.getFontMetrics();
+                        int textWidth = metrics.stringWidth(text);
+                        int textHeight = metrics.getAscent();
+    
+                        // Calculate the available width for the text
+                        int availableWidth = (int) (c.getWidth() * ((double) value / max));
+    
+                        // If the text width is larger than the available space, reduce font size
+                        if (textWidth > availableWidth) {
+                            // Scale the font size down dynamically based on available space
+                            int newFontSize = Math.max(20, (int) (availableWidth * 0.8));  // Ensure font size doesn't go below 20
+                            g2d.setFont(new Font("Segoe UI", Font.BOLD, newFontSize));
+                            metrics = g2d.getFontMetrics();
+                            textWidth = metrics.stringWidth(text);
+                            textHeight = metrics.getAscent();
+                        }
+    
+                        // Center the text horizontally and vertically within the progress bar
+                        int x = (availableWidth - textWidth) / 2;
+                        int y = (c.getHeight() + textHeight) / 2;
+    
+                        // Draw the percentage text, ensuring it's always visible within the bar
+                        g2d.drawString(text, x, y);
+    
+                        // Call the super method to paint the rest of the progress bar UI (such as borders)
+                        super.paint(g, c);
+                    }
+                });
+    
+                // Add label and progress bar to the panel
+                JPanel sectorPanel = new JPanel(new BorderLayout());
+                sectorPanel.setOpaque(false);
+                sectorPanel.add(new JLabel(entry.getKey() + ": $" + entry.getValue()), BorderLayout.NORTH);
+                sectorPanel.add(sectorProgressBar, BorderLayout.CENTER);
+                progressPanel.add(sectorPanel);
+            }
+        }
+    
+        // Display allocated and remaining budget labels
+        JLabel progressLabel = new JLabel(String.format("Allocated: $%.2f / Remaining: $%.2f", allocatedBudget, remainingBudget));
+        progressLabel.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        progressPanel.add(progressLabel);
+    
+        // Add progress panel to the main panel
+        mainPanel.add(progressPanel, "Progress");
+        cardLayout.show(mainPanel, "Progress");
+        revalidate();
+        repaint();
+    }
+    
+    
+    private void animateProgressBar(JProgressBar progressBar, int targetValue) {
+        final int step = 2; // Amount to increment each step
+        final int delay = 50; // Time in milliseconds between each step
+    
+        // Timer to animate the progress bar
+        Timer timer = new Timer(delay, new ActionListener() {
+            int currentValue = 0;
+    
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currentValue < targetValue) {
+                    currentValue += step;
+                    progressBar.setValue(currentValue);
+                } else {
+                    ((Timer) e.getSource()).stop();  // Stop the timer when target is reached
+                }
+            }
+        });
+    
+        timer.start();  // Start the timer
+    }
+    
     private JPanel createProfilePanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
