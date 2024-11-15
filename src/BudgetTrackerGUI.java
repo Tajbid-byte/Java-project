@@ -10,10 +10,12 @@ import java.util.Map;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.io.IOException;
 import java.awt.geom.Ellipse2D;
-
+import java.awt.geom.RoundRectangle2D;
 
 public class BudgetTrackerGUI extends JFrame {
     private CardLayout cardLayout;
@@ -38,7 +40,7 @@ public class BudgetTrackerGUI extends JFrame {
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
-        mainPanel.add(createIntroScreen(), "Intro");  // Added intro screen
+        mainPanel.add(createIntroScreen(), "Intro");
         mainPanel.add(createOverviewPanel(), "Dashboard");
         mainPanel.add(createMyExpensesPanel(), "My Expenses");
         mainPanel.add(createSettingsPanel(), "Settings");
@@ -58,20 +60,8 @@ public class BudgetTrackerGUI extends JFrame {
         setVisible(true);
     }
 
-    private void initializeSectors() {
-        sectors.put("Education", BigDecimal.ZERO);
-        sectors.put("Agriculture", BigDecimal.ZERO);
-        sectors.put("Local Government", BigDecimal.ZERO);
-        sectors.put("Rural Development", BigDecimal.ZERO);
-        sectors.put("Electricity and Fuel", BigDecimal.ZERO);
-        sectors.put("Health", BigDecimal.ZERO);
-        sectors.put("Defense", BigDecimal.ZERO);
-        sectors.put("Public Administration", BigDecimal.ZERO);
-        sectors.put("Transportation", BigDecimal.ZERO);
-        sectors.put("Social Safety", BigDecimal.ZERO);
-        sectors.put("Mega Projects", BigDecimal.ZERO);
-    }
     private JPanel createIntroScreen() {
+        // ... (existing implementation)
         JPanel introPanel = new JPanel();
         introPanel.setLayout(new BorderLayout());
         introPanel.setBackground(new Color(220, 240, 250));
@@ -179,9 +169,9 @@ public class BudgetTrackerGUI extends JFrame {
         g2.dispose();
         return buffered;
     }
-    
-    
+
     private JPanel createOverviewPanel() {
+        // ... (existing implementation)
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
@@ -218,6 +208,7 @@ public class BudgetTrackerGUI extends JFrame {
     }
 
     private JPanel createMyExpensesPanel() {
+        // ... (existing implementation)
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
@@ -264,6 +255,7 @@ public class BudgetTrackerGUI extends JFrame {
     }
 
     private JPanel createSettingsPanel() {
+        // ... (existing implementation)
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
@@ -274,6 +266,7 @@ public class BudgetTrackerGUI extends JFrame {
         panel.add(titleLabel, BorderLayout.NORTH);
 
         return panel;
+
     }
 
     private void refreshAnalysisPanel() {
@@ -285,6 +278,7 @@ public class BudgetTrackerGUI extends JFrame {
     }
 
     private JPanel createAnalysisPanel() {
+        // ... (existing implementation)
         JPanel panel = new JPanel(new BorderLayout());
     
         JLabel titleLabel = new JLabel("Analysis", SwingConstants.CENTER);
@@ -359,107 +353,86 @@ public class BudgetTrackerGUI extends JFrame {
     
         return panel;
     }
-    
+
     private void showProgressBar() {
         JPanel progressPanel = new JPanel();
         progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.Y_AXIS));
         progressPanel.setBackground(Color.WHITE);
-    
+
         // Calculate total and allocated budget
         BigDecimal allocatedBudget = BigDecimal.ZERO;
         for (BigDecimal amount : sectors.values()) {
             allocatedBudget = allocatedBudget.add(amount);
         }
-    
+
         // Calculate remaining budget
         BigDecimal remainingBudget = totalBudget.subtract(allocatedBudget);
-    
+
         // Loop over sectors to create progress bars
         for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
             if (entry.getValue().compareTo(BigDecimal.ZERO) > 0) {
                 // Calculate percentage for each sector based on total budget
                 int percentage = entry.getValue().multiply(BigDecimal.valueOf(100))
                         .divide(totalBudget, 0, BigDecimal.ROUND_HALF_UP).intValue();
-    
+
                 // Create a custom progress bar for each allocated sector
                 JProgressBar sectorProgressBar = new JProgressBar(0, 100);
                 sectorProgressBar.setValue(percentage);
-                sectorProgressBar.setStringPainted(true);  // Enable the default string painted
-    
+                sectorProgressBar.setStringPainted(true);
+
                 // Modern custom design (rounded corners, gradient color)
                 sectorProgressBar.setOpaque(false);
-                sectorProgressBar.setForeground(new Color(33, 150, 243));  // Color of the progress
-                sectorProgressBar.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));  // Remove default border
+                sectorProgressBar.setForeground(new Color(33, 150, 243));
+                sectorProgressBar.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
                 sectorProgressBar.setUI(new BasicProgressBarUI() {
                     @Override
                     protected Color getSelectionBackground() {
-                        return new Color(33, 150, 243);  // Blue
+                        return new Color(33, 150, 243);
                     }
-    
+
                     @Override
                     public void paint(Graphics g, JComponent c) {
                         Graphics2D g2d = (Graphics2D) g;
                         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON); // For better text rendering
-    
-                        // Cast the JComponent to JProgressBar
+                        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
                         JProgressBar progressBar = (JProgressBar) c;
-    
-                        // Get the progress value as a percentage
                         int value = progressBar.getValue();
                         int max = progressBar.getMaximum();
                         int percentage = (int) ((double) value / max * 100);
-    
-                        // Set a gradient background
+
                         GradientPaint gradient = new GradientPaint(0, 0, new Color(33, 150, 243), 0, c.getHeight(), new Color(29, 255, 236));
                         g2d.setPaint(gradient);
-    
-                        // Paint the background
-                        g2d.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 15, 15);  // Rounded corners
-    
-                        // Paint the filled portion (progress)
-                        g2d.setColor(new Color(33, 150, 243));  // Progress color
-                        g2d.fillRoundRect(0, 0, (int) (c.getWidth() * ((double) value / max)), c.getHeight(), 15, 15);  // Rounded corners for progress
-    
-                        // Set text color to pure white
+                        g2d.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 15, 15);
+
+                        g2d.setColor(new Color(33, 150, 243));
+                        g2d.fillRoundRect(0, 0, (int) (c.getWidth() * ((double) value / max)), c.getHeight(), 15, 15);
+
                         g2d.setColor(Color.WHITE);
-    
-                        // Increase the font size for the percentage text
-                        Font percentageFont = new Font("Segoe UI", Font.BOLD, 24);  // Larger font size
+                        Font percentageFont = new Font("Segoe UI", Font.BOLD, 24);
                         g2d.setFont(percentageFont);
-    
-                        // Draw the percentage text in white
+
                         String text = percentage + "%";
                         FontMetrics metrics = g2d.getFontMetrics();
                         int textWidth = metrics.stringWidth(text);
                         int textHeight = metrics.getAscent();
-    
-                        // Calculate the available width for the text
+
                         int availableWidth = (int) (c.getWidth() * ((double) value / max));
-    
-                        // If the text width is larger than the available space, reduce font size
                         if (textWidth > availableWidth) {
-                            // Scale the font size down dynamically based on available space
-                            int newFontSize = Math.max(20, (int) (availableWidth * 0.8));  // Ensure font size doesn't go below 20
+                            int newFontSize = Math.max(20, (int) (availableWidth * 0.8));
                             g2d.setFont(new Font("Segoe UI", Font.BOLD, newFontSize));
                             metrics = g2d.getFontMetrics();
                             textWidth = metrics.stringWidth(text);
                             textHeight = metrics.getAscent();
                         }
-    
-                        // Center the text horizontally and vertically within the progress bar
+
                         int x = (availableWidth - textWidth) / 2;
                         int y = (c.getHeight() + textHeight) / 2;
-    
-                        // Draw the percentage text, ensuring it's always visible within the bar
                         g2d.drawString(text, x, y);
-    
-                        // Call the super method to paint the rest of the progress bar UI (such as borders)
                         super.paint(g, c);
                     }
                 });
-    
-                // Add label and progress bar to the panel
+
                 JPanel sectorPanel = new JPanel(new BorderLayout());
                 sectorPanel.setOpaque(false);
                 sectorPanel.add(new JLabel(entry.getKey() + ": $" + entry.getValue()), BorderLayout.NORTH);
@@ -467,199 +440,65 @@ public class BudgetTrackerGUI extends JFrame {
                 progressPanel.add(sectorPanel);
             }
         }
-    
-        // Display allocated and remaining budget labels
+
         JLabel progressLabel = new JLabel(String.format("Allocated: $%.2f / Remaining: $%.2f", allocatedBudget, remainingBudget));
         progressLabel.setFont(new Font("Segoe UI", Font.PLAIN, 20));
         progressPanel.add(progressLabel);
-    
-        // Add progress panel to the main panel
+
         mainPanel.add(progressPanel, "Progress");
         cardLayout.show(mainPanel, "Progress");
         revalidate();
         repaint();
     }
-    
-    
+
     private void animateProgressBar(JProgressBar progressBar, int targetValue) {
-        final int step = 2; // Amount to increment each step
-        final int delay = 50; // Time in milliseconds between each step
-    
-        // Timer to animate the progress bar
+        final int step = 2;
+        final int delay = 50;
+
         Timer timer = new Timer(delay, new ActionListener() {
             int currentValue = 0;
-    
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (currentValue < targetValue) {
                     currentValue += step;
                     progressBar.setValue(currentValue);
                 } else {
-                    ((Timer) e.getSource()).stop();  // Stop the timer when target is reached
+                    ((Timer) e.getSource()).stop();
                 }
             }
         });
-    
-        timer.start();  // Start the timer
+
+        timer.start();
     }
+
+    private void initializeSectors() {
+        sectors.put("Education", BigDecimal.ZERO);
+        sectors.put("Agriculture", BigDecimal.ZERO);
+        sectors.put("Local Government", BigDecimal.ZERO);
+        sectors.put("Rural Development", BigDecimal.ZERO);
+        sectors.put("Electricity and Fuel", BigDecimal.ZERO);
+        sectors.put("Health", BigDecimal.ZERO);
+        sectors.put("Defense", BigDecimal.ZERO);
+        sectors.put("Public Administration", BigDecimal.ZERO);
+        sectors.put("Transportation", BigDecimal.ZERO);
+        sectors.put("Social Safety", BigDecimal.ZERO);
+        sectors.put("Mega Projects", BigDecimal.ZERO);
+    }
+
+  
     private JPanel createProfilePanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-    
-        // Title Label
-        JLabel titleLabel = new JLabel("Profile", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titleLabel.setForeground(new Color(90, 60, 150));
-        panel.add(titleLabel, BorderLayout.NORTH);
-    
-        // User Information Section
-        JPanel userInfoPanel = new JPanel();
-        userInfoPanel.setLayout(new BoxLayout(userInfoPanel, BoxLayout.Y_AXIS));
-        userInfoPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-    
-        // Panel for profile picture and user info (name & email)
-        JPanel profilePanel = new JPanel();
-        profilePanel.setLayout(new BoxLayout(profilePanel, BoxLayout.Y_AXIS));
-        profilePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-    
-        // Profile Picture Section - Circular shape
-        JLabel profilePicLabel = new JLabel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                // Make the profile picture circular by clipping the image
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2d.setClip(new Ellipse2D.Double(0, 0, getWidth(), getHeight())); // Clip to circle
-                super.paintComponent(g2d);
-                g2d.dispose();
-            }
-        };
-    
-        ImageIcon icon = new ImageIcon("tajbid.jpg"); // Use your own image file path
-        profilePicLabel.setIcon(icon);
-        profilePicLabel.setPreferredSize(new Dimension(80, 80)); // Small circular image
-        profilePicLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-        profilePicLabel.setOpaque(true);
-        profilePicLabel.setBackground(Color.GRAY);
-        profilePicLabel.setLayout(new FlowLayout(FlowLayout.CENTER));
-    
-        // Add profile picture to panel
-        profilePanel.add(profilePicLabel);
-    
-        // Full Name and Email Fields
-        JPanel nameEmailPanel = new JPanel();
-        nameEmailPanel.setLayout(new BoxLayout(nameEmailPanel, BoxLayout.Y_AXIS));
-        nameEmailPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-    
-        JLabel fullNameLabel = new JLabel("Full Name:");
-        JTextField fullNameField = new JTextField("John Doe", 20);
-        fullNameField.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-    
-        JLabel emailLabel = new JLabel("Email:");
-        JTextField emailField = new JTextField("johndoe@example.com", 20);
-        emailField.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-    
-        nameEmailPanel.add(fullNameLabel);
-        nameEmailPanel.add(fullNameField);
-        nameEmailPanel.add(emailLabel);
-        nameEmailPanel.add(emailField);
-    
-        profilePanel.add(nameEmailPanel);
-    
-        // Profile Editing Buttons
-        JPanel editProfilePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton editNameButton = new JButton("Edit Name");
-        JButton editEmailButton = new JButton("Edit Email");
-        JButton changeProfilePicButton = new JButton("Change Picture");
-        JButton updatePasswordButton = new JButton("Change Password");
-    
-        editNameButton.addActionListener(e -> editName(fullNameField));
-        editEmailButton.addActionListener(e -> editEmail(emailField));
-        changeProfilePicButton.addActionListener(e -> changeProfilePicture());
-        updatePasswordButton.addActionListener(e -> updatePassword());
-    
-        editProfilePanel.add(editNameButton);
-        editProfilePanel.add(editEmailButton);
-        editProfilePanel.add(changeProfilePicButton);
-        editProfilePanel.add(updatePasswordButton);
-    
-        // Export Data Section
-        JPanel exportPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton exportDataButton = new JButton("Export Data");
-        exportDataButton.addActionListener(e -> exportDataAsCSV());
-        exportPanel.add(exportDataButton);
-    
-        userInfoPanel.add(profilePanel);
-        userInfoPanel.add(editProfilePanel);
-        userInfoPanel.add(exportPanel);
-    
-        panel.add(userInfoPanel, BorderLayout.CENTER);
-        return panel;
+        // Pass actual budget data (these are just sample values)
+        String totalBudget = "10000";  // Example value, replace with actual data
+        String allocatedBudget = "5000";  // Example value, replace with actual data
+        String sector = "Healthcare";  // Example value, replace with actual data
+        String remainingBudget = "5000";  // Example value, replace with actual data
+        
+        // Now return the ProfileSettingsPanel with the provided data
+        return new ProfileSettingsPanel(totalBudget, allocatedBudget, sector, remainingBudget);
     }
-    
-    
-    // Method to edit the full name
-    private void editName(JTextField fullNameField) {
-        String newName = JOptionPane.showInputDialog(this, "Enter new name:");
-        if (newName != null && !newName.isEmpty()) {
-            fullNameField.setText(newName);
-        }
-    }
-    
-    // Method to edit the email
-    private void editEmail(JTextField emailField) {
-        String newEmail = JOptionPane.showInputDialog(this, "Enter new email:");
-        if (newEmail != null && !newEmail.isEmpty()) {
-            emailField.setText(newEmail);
-        }
-    }
-    
-    // Methods for Profile Editing and Export Data actions
-    private void changeProfilePicture() {
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            // Logic to change profile picture
-        }
-    }
-    
-    private void updatePassword() {
-        // Logic to update password with input dialog
-        JOptionPane.showMessageDialog(this, "Password updated successfully!");
-    }
-    
-    private void exportDataAsCSV() {
-        // Define the CSV file name
-        String fileName = "BudgetDetails_" + System.currentTimeMillis() + ".csv";
-    
-        try (PrintWriter writer = new PrintWriter(new File(fileName))) {
-            StringBuilder sb = new StringBuilder();
-    
-            // Add user name at the top
-            String userName = "John Doe"; // Replace with actual user name variable if available
-            sb.append("Name:").append(",").append(userName).append("\n");
-    
-            // Column headers for budget details
-            sb.append("Sector,Amount\n");
-    
-            // Add each sector's budget details from the sectors map
-            for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
-                sb.append(entry.getKey()).append(",");
-                sb.append(entry.getValue().toString()).append("\n");
-            }
-    
-            writer.write(sb.toString());
-            JOptionPane.showMessageDialog(this, "Data exported successfully as " + fileName);
-    
-        } catch (FileNotFoundException e) {
-            JOptionPane.showMessageDialog(this, "Error exporting data: " + e.getMessage());
-        }
-    }
-    
     private JPanel createSidebar() {
-        // Create the sidebar and set up layout
+        // ... (existing implementation)
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new GridLayout(5, 1, 5, 5)); // Add spacing for alignment
         sidebar.setBackground(new Color(40, 44, 52));
@@ -701,8 +540,9 @@ public class BudgetTrackerGUI extends JFrame {
     
         return sidebar;
     }
-    
+
     private void setTotalBudget() {
+        // ... (existing implementation)
         String input = JOptionPane.showInputDialog(this, "Enter Total Budget:");
         try {
             totalBudget = new BigDecimal(input);
@@ -712,16 +552,18 @@ public class BudgetTrackerGUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.");
         }
     }
-    
 
     private BigDecimal calculateRemainingBudget() {
+        // ... (existing implementation)
         BigDecimal allocatedBudget = BigDecimal.ZERO;
         for (BigDecimal amount : sectors.values()) {
             allocatedBudget = allocatedBudget.add(amount);
         }
         return totalBudget.subtract(allocatedBudget);
     }
+
     private void allocateBudget(String sector) {
+        // ... (existing implementation)
         String input = JOptionPane.showInputDialog(this, "Enter amount to allocate to " + sector + ":");
         try {
             BigDecimal allocation = new BigDecimal(input);
@@ -739,15 +581,198 @@ public class BudgetTrackerGUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.");
         }
     }
+
     private BigDecimal calculateAllocatedBudget() {
+        // ... (existing implementation)
         BigDecimal allocatedBudget = BigDecimal.ZERO;
         for (BigDecimal amount : sectors.values()) {
             allocatedBudget = allocatedBudget.add(amount);  // Sum up all allocated amounts
         }
         return allocatedBudget;
+
     }
-    
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new BudgetTrackerGUI());
+    }
+}
+
+class ProfileSettingsPanel extends JPanel {
+    private JTextField nameTextField;
+    private JTextField emailTextField;
+    private JTextField contactNumberTextField;
+    private String totalBudget;
+    private String allocatedBudget;
+    private String sector;
+    private String remainingBudget;
+
+    public ProfileSettingsPanel(String totalBudget, String allocatedBudget, String sector, String remainingBudget) {
+        this.totalBudget = totalBudget;
+        this.allocatedBudget = allocatedBudget;
+        this.sector = sector;
+        this.remainingBudget = remainingBudget;
+
+        setLayout(new BorderLayout(0, 20));
+        setBackground(new Color(249, 250, 251));
+        setBorder(new EmptyBorder(30, 40, 30, 40));
+
+        // Header
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        headerPanel.setOpaque(false);
+
+        ImageIcon userIcon = new ImageIcon("profileicon.png");
+        JLabel titleLabel = new JLabel("Profile Settings", userIcon, JLabel.LEFT);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(new Color(17, 24, 39));
+
+        JLabel subtitleLabel = new JLabel("Update your profile information");
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitleLabel.setForeground(new Color(107, 114, 128));
+
+        headerPanel.add(titleLabel);
+        headerPanel.add(Box.createHorizontalStrut(10));
+        headerPanel.add(subtitleLabel);
+
+        // Form fields
+        JPanel formPanel = new JPanel(new GridLayout(3, 1, 0, 16)); // Updated to 3 rows
+        formPanel.setOpaque(false);
+
+        formPanel.add(createFormField("Full Name", "Enter your full name"));
+        formPanel.add(createFormField("Email", "Enter your email address"));
+        formPanel.add(createFormField("Contact Number", "Enter your contact number")); // New field
+
+        // Buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonPanel.setOpaque(false);
+
+        JButton exportButton = createStyledButton("Export Data", Color.WHITE, new Color(79, 70, 229));
+        exportButton.addActionListener(e -> exportDataToCSV());
+
+        buttonPanel.add(exportButton);
+
+        // Assemble the panel
+        add(headerPanel, BorderLayout.NORTH);
+        add(formPanel, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private JPanel createFormField(String label, String placeholder) {
+        JPanel fieldPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 8));
+        fieldPanel.setOpaque(false);
+
+        JLabel fieldLabel = new JLabel(label);
+        fieldLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        fieldLabel.setForeground(new Color(17, 24, 39));
+        fieldLabel.setPreferredSize(new Dimension(100, 40));
+
+        JTextField textField = new JTextField(12);
+        textField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        textField.setText(placeholder);
+        textField.setForeground(Color.GRAY);
+        textField.setPreferredSize(new Dimension(200, 40));
+
+        // Store reference to the text fields
+        if (label.equals("Full Name")) {
+            nameTextField = textField;
+        } else if (label.equals("Email")) {
+            emailTextField = textField;
+        } else if (label.equals("Contact Number")) {
+            contactNumberTextField = textField;
+        }
+
+        // Add placeholder behavior
+        textField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (textField.getText().equals(placeholder)) {
+                    textField.setText("");
+                    textField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (textField.getText().isEmpty()) {
+                    textField.setText(placeholder);
+                    textField.setForeground(Color.GRAY);
+                }
+            }
+        });
+
+        fieldPanel.add(fieldLabel);
+        fieldPanel.add(Box.createHorizontalStrut(16));
+        fieldPanel.add(textField);
+
+        return fieldPanel;
+    }
+
+    private JButton createStyledButton(String text, Color bgColor, Color fgColor) {
+        JButton button = new JButton(text) {
+            // Override paintComponent to add round corners
+            @Override
+            protected void paintComponent(Graphics g) {
+                if (getModel().isPressed()) {
+                    g.setColor(getBackground().darker());
+                } else {
+                    g.setColor(getBackground());
+                }
+                g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 40, 40); // Rounded corners with radius 40
+                super.paintComponent(g);
+            }
+        };
+
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setForeground(fgColor);
+        button.setBackground(bgColor);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setOpaque(true);
+        button.setPreferredSize(new Dimension(150, 40));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Hover effect
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(new Color(29, 255, 236)); // Hover color
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(bgColor); // Original color
+            }
+        });
+
+        return button;
+    }
+
+    private void exportDataToCSV() {
+        String fullName = nameTextField.getText();
+        String email = emailTextField.getText();
+        String contactNumber = contactNumberTextField.getText();
+
+        if (fullName.equals("Enter your full name") || email.equals("Enter your email address") || contactNumber.equals("Enter your contact number")) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields before exporting!", "Missing Data", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save CSV File");
+        fileChooser.setSelectedFile(new File("profile_data.csv"));
+        int userSelection = fileChooser.showSaveDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+
+            try (FileWriter writer = new FileWriter(fileToSave)) {
+                writer.write("Full Name,Email,Contact Number,Total Budget,Allocated Budget,Sector,Remaining Budget\n");
+                writer.write(fullName + "," + email + "," + contactNumber + "," + totalBudget + "," + allocatedBudget + "," + sector + "," + remainingBudget + "\n");
+
+                JOptionPane.showMessageDialog(this, "Data exported successfully!", "Export", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error exporting data: " + e.getMessage(), "Export Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 }
