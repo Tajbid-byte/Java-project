@@ -18,6 +18,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;
 
 public class BudgetTrackerGUI extends JFrame {
+    // ... (previous existing code remains the same)
     private CardLayout cardLayout;
     private JPanel mainPanel;
     private Map<String, BigDecimal> sectors;
@@ -59,6 +60,25 @@ public class BudgetTrackerGUI extends JFrame {
 
         setVisible(true);
     }
+    // Add this public method to calculate remaining budget
+    public BigDecimal calculateRemainingBudget() {
+        BigDecimal allocatedBudget = BigDecimal.ZERO;
+        for (BigDecimal amount : sectors.values()) {
+            allocatedBudget = allocatedBudget.add(amount);
+        }
+        return totalBudget.subtract(allocatedBudget);
+    }
+
+    // Add a method to get detailed budget information
+    public Map<String, Object> getBudgetInformation() {
+        Map<String, Object> budgetInfo = new LinkedHashMap<>();
+        budgetInfo.put("Total Budget", totalBudget);
+        budgetInfo.put("Remaining Budget", calculateRemainingBudget());
+        budgetInfo.put("Sector Allocations", new LinkedHashMap<>(sectors));
+        return budgetInfo;
+    }
+
+    // ... (rest of the previous code remains the same)
 
     private JPanel createIntroScreen() {
         // ... (existing implementation)
@@ -485,17 +505,12 @@ public class BudgetTrackerGUI extends JFrame {
         sectors.put("Social Safety", BigDecimal.ZERO);
         sectors.put("Mega Projects", BigDecimal.ZERO);
     }
-
+    public Map<String, BigDecimal> getSectors() {
+        return this.sectors;
+    }
   
     private JPanel createProfilePanel() {
-        // Pass actual budget data (these are just sample values)
-        String totalBudget = "10000";  // Example value, replace with actual data
-        String allocatedBudget = "5000";  // Example value, replace with actual data
-        String sector = "Healthcare";  // Example value, replace with actual data
-        String remainingBudget = "5000";  // Example value, replace with actual data
-        
-        // Now return the ProfileSettingsPanel with the provided data
-        return new ProfileSettingsPanel(totalBudget, allocatedBudget, sector, remainingBudget);
+        return new ProfileSettingsPanel(this);
     }
     private JPanel createSidebar() {
         // ... (existing implementation)
@@ -552,16 +567,10 @@ public class BudgetTrackerGUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.");
         }
     }
-
-    private BigDecimal calculateRemainingBudget() {
-        // ... (existing implementation)
-        BigDecimal allocatedBudget = BigDecimal.ZERO;
-        for (BigDecimal amount : sectors.values()) {
-            allocatedBudget = allocatedBudget.add(amount);
-        }
-        return totalBudget.subtract(allocatedBudget);
+    public BigDecimal getTotalBudget() {
+        return this.totalBudget;
     }
-
+  
     private void allocateBudget(String sector) {
         // ... (existing implementation)
         String input = JOptionPane.showInputDialog(this, "Enter amount to allocate to " + sector + ":");
@@ -595,23 +604,17 @@ public class BudgetTrackerGUI extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new BudgetTrackerGUI());
     }
+
 }
 
 class ProfileSettingsPanel extends JPanel {
     private JTextField nameTextField;
     private JTextField emailTextField;
     private JTextField contactNumberTextField;
-    private String totalBudget;
-    private String allocatedBudget;
-    private String sector;
-    private String remainingBudget;
+    private BudgetTrackerGUI parentFrame;
 
-    public ProfileSettingsPanel(String totalBudget, String allocatedBudget, String sector, String remainingBudget) {
-        this.totalBudget = totalBudget;
-        this.allocatedBudget = allocatedBudget;
-        this.sector = sector;
-        this.remainingBudget = remainingBudget;
-
+    public ProfileSettingsPanel(BudgetTrackerGUI parentFrame) {
+        this.parentFrame = parentFrame;
         setLayout(new BorderLayout(0, 20));
         setBackground(new Color(249, 250, 251));
         setBorder(new EmptyBorder(30, 40, 30, 40));
@@ -634,12 +637,12 @@ class ProfileSettingsPanel extends JPanel {
         headerPanel.add(subtitleLabel);
 
         // Form fields
-        JPanel formPanel = new JPanel(new GridLayout(3, 1, 0, 16)); // Updated to 3 rows
+        JPanel formPanel = new JPanel(new GridLayout(3, 1, 0, 16));
         formPanel.setOpaque(false);
 
         formPanel.add(createFormField("Full Name", "Enter your full name"));
         formPanel.add(createFormField("Email", "Enter your email address"));
-        formPanel.add(createFormField("Contact Number", "Enter your contact number")); // New field
+        formPanel.add(createFormField("Contact Number", "Enter your contact number"));
 
         // Buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
@@ -708,7 +711,6 @@ class ProfileSettingsPanel extends JPanel {
 
     private JButton createStyledButton(String text, Color bgColor, Color fgColor) {
         JButton button = new JButton(text) {
-            // Override paintComponent to add round corners
             @Override
             protected void paintComponent(Graphics g) {
                 if (getModel().isPressed()) {
@@ -716,7 +718,7 @@ class ProfileSettingsPanel extends JPanel {
                 } else {
                     g.setColor(getBackground());
                 }
-                g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 40, 40); // Rounded corners with radius 40
+                g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 40, 40);
                 super.paintComponent(g);
             }
         };
@@ -747,31 +749,66 @@ class ProfileSettingsPanel extends JPanel {
         return button;
     }
 
+
     private void exportDataToCSV() {
+        // Validate input fields
         String fullName = nameTextField.getText();
         String email = emailTextField.getText();
         String contactNumber = contactNumberTextField.getText();
 
-        if (fullName.equals("Enter your full name") || email.equals("Enter your email address") || contactNumber.equals("Enter your contact number")) {
-            JOptionPane.showMessageDialog(this, "Please fill in all fields before exporting!", "Missing Data", JOptionPane.WARNING_MESSAGE);
+        if (fullName.equals("Enter your full name") || 
+            email.equals("Enter your email address") || 
+            contactNumber.equals("Enter your contact number")) {
+            JOptionPane.showMessageDialog(this, 
+                "Please fill in all fields before exporting!", 
+                "Missing Data", 
+                JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // Fetch dynamic budget data from parent BudgetTrackerGUI
+        Map<String, Object> budgetInfo = parentFrame.getBudgetInformation();
+
+        // Prepare export
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save CSV File");
-        fileChooser.setSelectedFile(new File("profile_data.csv"));
+        fileChooser.setSelectedFile(new File("budget_profile_data.csv"));
         int userSelection = fileChooser.showSaveDialog(this);
 
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
 
             try (FileWriter writer = new FileWriter(fileToSave)) {
-                writer.write("Full Name,Email,Contact Number,Total Budget,Allocated Budget,Sector,Remaining Budget\n");
-                writer.write(fullName + "," + email + "," + contactNumber + "," + totalBudget + "," + allocatedBudget + "," + sector + "," + remainingBudget + "\n");
+                // Write headers
+                writer.write("Profile Information\n");
+                writer.write("Full Name," + fullName + "\n");
+                writer.write("Email," + email + "\n");
+                writer.write("Contact Number," + contactNumber + "\n\n");
 
-                JOptionPane.showMessageDialog(this, "Data exported successfully!", "Export", JOptionPane.INFORMATION_MESSAGE);
+                // Write budget summary
+                writer.write("Budget Summary\n");
+                writer.write("Total Budget," + budgetInfo.get("Total Budget") + "\n");
+                writer.write("Remaining Budget," + budgetInfo.get("Remaining Budget") + "\n\n");
+
+                // Write sector allocations
+                writer.write("Sector Allocations\n");
+                writer.write("Sector,Allocated Amount\n");
+                
+                @SuppressWarnings("unchecked")
+                Map<String, BigDecimal> sectors = (Map<String, BigDecimal>) budgetInfo.get("Sector Allocations");
+                for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
+                    writer.write(entry.getKey() + "," + entry.getValue() + "\n");
+                }
+
+                JOptionPane.showMessageDialog(this, 
+                    "Data exported successfully!", 
+                    "Export", 
+                    JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "Error exporting data: " + e.getMessage(), "Export Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, 
+                    "Error exporting data: " + e.getMessage(), 
+                    "Export Error", 
+                    JOptionPane.ERROR_MESSAGE);
             }
         }
     }
