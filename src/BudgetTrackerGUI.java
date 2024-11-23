@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicProgressBarUI;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.event.*;
 import java.awt.*;
 import java.math.BigDecimal;
@@ -28,7 +29,13 @@ public class BudgetTrackerGUI extends JFrame {
     private JLabel remainingBudgetLabel;
     private JPanel analysisPanel; // Store reference to Analysis panel for refreshing
     private JPanel sidebar; // Sidebar panel to be added later
-
+    private static final Color PRIMARY_COLOR = new Color(63, 81, 181);    // Material Indigo
+    private static final Color ACCENT_COLOR = new Color(3, 169, 244);     // Material Light Blue
+    private static final Color HOVER_COLOR = new Color(83, 109, 254);     // Lighter Indigo
+    private static final Color BACKGROUND_COLOR = new Color(237, 241, 247);
+    private static final Color CARD_COLOR = new Color(255, 255, 255);
+    
+    
     public BudgetTrackerGUI() {
         this.totalBudget = BigDecimal.ZERO;
         this.sectors = new LinkedHashMap<>();
@@ -229,51 +236,177 @@ public class BudgetTrackerGUI extends JFrame {
     }
 
     private JPanel createMyExpensesPanel() {
-        // ... (existing implementation)
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
+    JPanel mainPanel = new JPanel();
+    mainPanel.setLayout(new BorderLayout(0, 20));
+    mainPanel.setBackground(BACKGROUND_COLOR);
+    mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JLabel titleLabel = new JLabel("My Expenses", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titleLabel.setForeground(new Color(90, 60, 150));
+    // Create title panel
+    JPanel titlePanel = new JPanel(new BorderLayout());
+    titlePanel.setBackground(CARD_COLOR);
+    titlePanel.setBorder(BorderFactory.createCompoundBorder(
+        new RoundedBorder(15),
+        new EmptyBorder(15, 20, 15, 20)
+    ));
 
-        JPanel expensesPanel = new JPanel(new GridLayout(sectors.size(), 1));
-        expensesPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        expensesPanel.setBackground(Color.decode("#ccd5ff"));
+    JLabel titleLabel = new JLabel("My Expenses", SwingConstants.CENTER);
+    titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
+    titleLabel.setForeground(PRIMARY_COLOR);
+    titlePanel.add(titleLabel, BorderLayout.CENTER);
 
-        for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
-            JPanel sectorPanel = new JPanel(new BorderLayout());
-            sectorPanel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 250)));
-            sectorPanel.setBackground(new Color(255, 255, 255));
+    // Create content panel for expenses
+    JPanel contentPanel = new JPanel();
+    contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+    contentPanel.setBackground(BACKGROUND_COLOR);
 
-            JLabel sectorLabel = new JLabel(entry.getKey() + ": $" + entry.getValue());
-            sectorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-
-            JButton allocateButton = new JButton("Allocate");
-            allocateButton.setBackground(new Color(33, 150, 243));
-            allocateButton.setForeground(Color.WHITE);
-            allocateButton.addActionListener(e -> allocateBudget(entry.getKey()));
-
-            allocateButton.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    allocateButton.setBackground(new Color(29, 255, 236));
-                }
-
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    allocateButton.setBackground(new Color(33, 150, 243));
-                }
-            });
-
-            sectorPanel.add(sectorLabel, BorderLayout.CENTER);
-            sectorPanel.add(allocateButton, BorderLayout.EAST);
-            expensesPanel.add(sectorPanel);
-        }
-
-        panel.add(titleLabel, BorderLayout.NORTH);
-        panel.add(new JScrollPane(expensesPanel), BorderLayout.CENTER);
-
-        return panel;
+    // Add expense cards
+    for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
+        contentPanel.add(createExpenseCard(entry));
+        contentPanel.add(Box.createVerticalStrut(10)); // Space between cards
     }
+
+    // Custom scroll pane
+    JScrollPane scrollPane = new JScrollPane(contentPanel);
+    scrollPane.setBorder(null);
+    scrollPane.setBackground(BACKGROUND_COLOR);
+    scrollPane.getViewport().setBackground(BACKGROUND_COLOR);
+    
+    // Customize scrollbar
+    JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+    verticalScrollBar.setPreferredSize(new Dimension(8, 0));
+    verticalScrollBar.setUI(new ModernScrollBarUI());
+
+    mainPanel.add(titlePanel, BorderLayout.NORTH);
+    mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+    return mainPanel;
+}
+
+// Helper method to create expense cards
+private JPanel createExpenseCard(Map.Entry<String, BigDecimal> entry) {
+    JPanel card = new JPanel(new BorderLayout(15, 0));
+    card.setBackground(CARD_COLOR);
+    card.setBorder(BorderFactory.createCompoundBorder(
+        new RoundedBorder(10),
+        new EmptyBorder(12, 15, 12, 15)
+    ));
+    card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+
+    // Create icon panel
+    JLabel iconLabel = new JLabel("\uD83D\uDCB0"); // Money bag emoji
+    iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+    card.add(iconLabel, BorderLayout.WEST);
+
+    // Create info panel
+    JPanel infoPanel = new JPanel(new GridLayout(2, 1, 0, 3));
+    infoPanel.setBackground(CARD_COLOR);
+
+    JLabel sectorLabel = new JLabel(entry.getKey());
+    sectorLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
+    sectorLabel.setForeground(new Color(33, 33, 33));
+
+    JLabel amountLabel = new JLabel("$" + entry.getValue());
+    amountLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    amountLabel.setForeground(new Color(117, 117, 117));
+
+    infoPanel.add(sectorLabel);
+    infoPanel.add(amountLabel);
+    card.add(infoPanel, BorderLayout.CENTER);
+
+    // Create allocate button
+    JButton allocateButton = createStyledButton("Allocate");
+    allocateButton.addActionListener(e -> allocateBudget(entry.getKey()));
+    card.add(allocateButton, BorderLayout.EAST);
+
+    return card;
+}
+
+// Helper method to create styled buttons
+private JButton createStyledButton(String text) {
+    JButton button = new JButton(text) {
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            if (getModel().isPressed()) {
+                g2.setColor(HOVER_COLOR.darker());
+            } else if (getModel().isRollover()) {
+                g2.setColor(HOVER_COLOR);
+            } else {
+                g2.setColor(ACCENT_COLOR);
+            }
+            
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+            g2.dispose();
+            
+            super.paintComponent(g);
+        }
+    };
+
+    button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    button.setForeground(Color.WHITE);
+    button.setFocusPainted(false);
+    button.setBorderPainted(false);
+    button.setContentAreaFilled(false);
+    button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    button.setPreferredSize(new Dimension(100, 35));
+
+    return button;
+}
+
+// Custom rounded border class
+private static class RoundedBorder extends LineBorder {
+    private final int radius;
+
+    RoundedBorder(int radius) {
+        super(new Color(230, 230, 230));
+        this.radius = radius;
+    }
+
+    @Override
+    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(lineColor);
+        g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
+        g2.dispose();
+    }
+}
+
+// Modern ScrollBar UI
+private static class ModernScrollBarUI extends BasicScrollBarUI {
+    @Override
+    protected void configureScrollBarColors() {
+        this.thumbColor = ACCENT_COLOR;
+        this.trackColor = BACKGROUND_COLOR;
+    }
+
+    @Override
+    protected JButton createDecreaseButton(int orientation) {
+        return createZeroButton();
+    }
+
+    @Override
+    protected JButton createIncreaseButton(int orientation) {
+        return createZeroButton();
+    }
+
+    private JButton createZeroButton() {
+        JButton button = new JButton();
+        button.setPreferredSize(new Dimension(0, 0));
+        return button;
+    }
+
+    @Override
+    protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(thumbColor);
+        g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 4, 4);
+        g2.dispose();
+    }
+}
 
     private JPanel createSettingsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
