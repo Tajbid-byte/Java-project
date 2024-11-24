@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.event.*;
@@ -29,6 +30,9 @@ public class BudgetTrackerGUI extends JFrame {
     private JLabel remainingBudgetLabel;
     private JPanel analysisPanel; // Store reference to Analysis panel for refreshing
     private JPanel sidebar; // Sidebar panel to be added later
+  
+    private JPanel totalBudgetCard;
+    private JPanel remainingBudgetCard;
     private static final Color PRIMARY_COLOR = new Color(63, 81, 181);    // Material Indigo
     private static final Color ACCENT_COLOR = new Color(3, 169, 244);     // Material Light Blue
     private static final Color HOVER_COLOR = new Color(83, 109, 254);     // Lighter Indigo
@@ -57,6 +61,7 @@ public class BudgetTrackerGUI extends JFrame {
         mainPanel.add(analysisPanel, "Analysis");
         mainPanel.add(createProfilePanel(), "Profile");
 
+        
         // Initially, add only the main panel without the sidebar
         add(mainPanel, BorderLayout.CENTER);
 
@@ -65,6 +70,7 @@ public class BudgetTrackerGUI extends JFrame {
 
         // Show the intro screen initially
         cardLayout.show(mainPanel, "Intro");
+        
 
         setVisible(true);
     }
@@ -197,43 +203,190 @@ public class BudgetTrackerGUI extends JFrame {
         g2.dispose();
         return buffered;
     }
-
     private JPanel createOverviewPanel() {
-        // ... (existing implementation)
         JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-
-        JLabel titleLabel = new JLabel("Overview", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titleLabel.setForeground(new Color(90, 60, 150));
-
-        JPanel topPanel = new JPanel();
-        topPanel.setBackground(new Color(220, 240, 250));
-        topPanel.add(titleLabel);
-
-        JPanel budgetSummaryPanel = new JPanel(new GridLayout(4, 1));
-        budgetSummaryPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        budgetSummaryPanel.setBackground(Color.decode("#ccd5ff"));
-
-        totalBudgetLabel = new JLabel("Total Budget: " + totalBudget);
-        totalBudgetLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        remainingBudgetLabel = new JLabel("Remaining Budget: " + calculateRemainingBudget());
-        remainingBudgetLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
-
-        JButton setBudgetButton = new JButton("Set Total Budget");
-        setBudgetButton.setBackground(Color.decode("#0e0725"));
-        setBudgetButton.setForeground(Color.WHITE);
+        panel.setLayout(new BorderLayout(20, 20));
+        panel.setBackground(BACKGROUND_COLOR);
+        panel.setBorder(new EmptyBorder(25, 25, 25, 25));
+    
+        // Header Panel
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(BACKGROUND_COLOR);
+        
+        JLabel titleLabel = new JLabel("Financial Overview");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(PRIMARY_COLOR);
+        headerPanel.add(titleLabel, BorderLayout.WEST);
+    
+        // Main Content Panel using GridBagLayout for better control
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBackground(BACKGROUND_COLOR);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 10, 10, 10);
+    
+        // Budget Summary Cards
+        totalBudgetCard = createBudgetCard("Total Budget", 
+            String.format("$%,.2f", totalBudget.doubleValue()),
+            new Color(63, 81, 181, 20),  // Light indigo background
+            PRIMARY_COLOR);
+        totalBudgetCard.setPreferredSize(new Dimension(200, 100));
+        
+        remainingBudgetCard = createBudgetCard("Remaining Budget", 
+            String.format("$%,.2f", calculateRemainingBudget().doubleValue()),
+            new Color(3, 169, 244, 20),  // Light blue background
+            ACCENT_COLOR);
+        remainingBudgetCard.setPreferredSize(new Dimension(200, 100));
+    
+        // Add cards to the content panel with flexible width
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0.5;
+        contentPanel.add(totalBudgetCard, gbc);
+    
+        gbc.gridx = 1;
+        gbc.weightx = 0.5;
+        contentPanel.add(remainingBudgetCard, gbc);
+    
+        // Create modern set budget button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buttonPanel.setBackground(BACKGROUND_COLOR);
+        JButton setBudgetButton = createModernButton("Set Total Budget", PRIMARY_COLOR);
         setBudgetButton.addActionListener(e -> setTotalBudget());
-
-        budgetSummaryPanel.add(totalBudgetLabel);
-        budgetSummaryPanel.add(remainingBudgetLabel);
-        budgetSummaryPanel.add(setBudgetButton);
-
-        panel.add(topPanel, BorderLayout.NORTH);
-        panel.add(budgetSummaryPanel, BorderLayout.CENTER);
-
+        buttonPanel.add(setBudgetButton);
+    
+        // Add quick actions panel
+        JPanel quickActionsPanel = createQuickActionsPanel();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(20, 10, 10, 10);
+        gbc.weightx = 1.0;
+        contentPanel.add(quickActionsPanel, gbc);
+    
+        // Add all components to main panel
+        panel.add(headerPanel, BorderLayout.NORTH);
+        panel.add(contentPanel, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+        panel.validate();
+        panel.repaint();
+    
         return panel;
     }
+
+// Helper method to create budget cards
+private JPanel createBudgetCard(String title, String amount, Color backgroundColor, Color accentColor) {
+    JPanel card = new JPanel();
+    card.setLayout(new BorderLayout(10, 10));
+    card.setBackground(backgroundColor);
+    card.setBorder(BorderFactory.createCompoundBorder(
+        new LineBorder(accentColor, 1, true),
+        new EmptyBorder(20, 20, 20, 20)
+    ));
+
+    // Title
+    JLabel titleLabel = new JLabel(title);
+    titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+    titleLabel.setForeground(new Color(100, 100, 100));
+
+    // Amount
+    JLabel amountLabel = new JLabel(amount);
+    amountLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+    amountLabel.setForeground(accentColor);
+
+    // Add components
+    card.add(titleLabel, BorderLayout.NORTH);
+    card.add(amountLabel, BorderLayout.CENTER);
+
+    // Make the card round and add hover effect
+    card.setPreferredSize(new Dimension(250, 120));
+    return card;
+}
+
+// Helper method to create modern buttons
+private JButton createModernButton(String text, Color color) {
+    JButton button = new JButton(text) {
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            if (getModel().isPressed()) {
+                g2.setColor(color.darker());
+            } else if (getModel().isRollover()) {
+                g2.setColor(HOVER_COLOR);
+            } else {
+                g2.setColor(color);
+            }
+            
+            g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 10, 10));
+            g2.dispose();
+            
+            super.paintComponent(g);
+        }
+    };
+    
+    button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    button.setForeground(Color.WHITE);
+    button.setFocusPainted(false);
+    button.setBorderPainted(false);
+    button.setContentAreaFilled(false);
+    button.setOpaque(false);
+    button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    button.setPreferredSize(new Dimension(150, 40));
+    
+    return button;
+}
+
+// Helper method to create quick actions panel
+private JPanel createQuickActionsPanel() {
+    JPanel panel = new JPanel(new GridLayout(1, 3, 15, 0));
+    panel.setBackground(BACKGROUND_COLOR);
+    panel.setBorder(BorderFactory.createTitledBorder(
+        BorderFactory.createEmptyBorder(),
+        "Quick Actions",
+        TitledBorder.LEFT,
+        TitledBorder.TOP,
+        new Font("Segoe UI", Font.BOLD, 16),
+        PRIMARY_COLOR
+    ));
+
+    // Add quick action buttons
+    panel.add(createQuickActionButton("Add Expense", "➕"));
+    panel.add(createQuickActionButton("View Reports", "📊"));
+    panel.add(createQuickActionButton("Export Data", "📤"));
+
+    return panel;
+}
+
+private JButton createQuickActionButton(String text, String icon) {
+    JButton button = new JButton("<html><center>" + icon + "<br>" + text + "</center></html>");
+    button.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    button.setForeground(PRIMARY_COLOR);
+    button.setBackground(CARD_COLOR);
+    button.setBorder(BorderFactory.createCompoundBorder(
+        new LineBorder(new Color(63, 81, 181, 50), 1, true),
+        new EmptyBorder(15, 15, 15, 15)
+    ));
+    button.setFocusPainted(false);
+    button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    
+    // Add hover effect
+    button.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            button.setBackground(new Color(63, 81, 181, 20));
+        }
+        
+        @Override
+        public void mouseExited(MouseEvent e) {
+            button.setBackground(CARD_COLOR);
+        }
+    });
+    
+    return button;
+}
 
     private JPanel createMyExpensesPanel() {
     JPanel mainPanel = new JPanel();
@@ -843,20 +996,127 @@ private static class ModernScrollBarUI extends BasicScrollBarUI {
     
         return sidebar;
     }
-
     private void setTotalBudget() {
-        // ... (existing implementation)
-        String input = JOptionPane.showInputDialog(this, "Enter Total Budget:");
-        try {
-            totalBudget = new BigDecimal(input);
-            totalBudgetLabel.setText("Total Budget: " + totalBudget);
-            remainingBudgetLabel.setText("Remaining Budget: " + calculateRemainingBudget());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.");
-        }
+        // Create a custom dialog for budget input
+        JDialog dialog = new JDialog(this, "Set Total Budget", true);
+        dialog.setLayout(new BorderLayout(10, 10));
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        
+        // Create input panel
+        JPanel inputPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        
+        // Add input field
+        JLabel promptLabel = new JLabel("Enter Total Budget:");
+        JTextField inputField = new JTextField(15);
+        inputField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        
+        // Add dollar sign prefix
+        JLabel dollarLabel = new JLabel("$");
+        dollarLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        
+        // Button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        JButton okButton = new JButton("OK");
+        JButton cancelButton = new JButton("Cancel");
+        
+        // Layout components
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        inputPanel.add(promptLabel, gbc);
+        
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        inputPanel.add(dollarLabel, gbc);
+        
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        inputPanel.add(inputField, gbc);
+        
+        // Add buttons
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
+        
+        // Add panels to dialog
+        dialog.add(inputPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+        
+        // Handle OK button
+        okButton.addActionListener(e -> {
+            try {
+                String input = inputField.getText().trim();
+                if (input.isEmpty()) {
+                    JOptionPane.showMessageDialog(dialog,
+                        "Please enter a budget amount.",
+                        "Input Required",
+                        JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                
+                // Parse and validate input
+                BigDecimal newBudget = new BigDecimal(input);
+                if (newBudget.compareTo(BigDecimal.ZERO) < 0) {
+                    JOptionPane.showMessageDialog(dialog,
+                        "Budget cannot be negative.",
+                        "Invalid Input",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
+                // Update budget displays
+                totalBudget = newBudget;
+                updateBudgetDisplays();
+                dialog.dispose();
+                
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog,
+                    "Please enter a valid number.",
+                    "Invalid Input",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        // Handle Cancel button
+        cancelButton.addActionListener(e -> dialog.dispose());
+        
+        // Handle Enter key in input field
+        inputField.addActionListener(e -> okButton.doClick());
+        
+        // Size and position the dialog
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setResizable(false);
+        dialog.setVisible(true);
     }
-    public BigDecimal getTotalBudget() {
-        return this.totalBudget;
+    
+    // Helper method to update all budget displays
+    private void updateBudgetDisplays() {
+        String formattedTotal = String.format("$%,.2f", totalBudget);
+        String formattedRemaining = String.format("$%,.2f", calculateRemainingBudget());
+        
+        // Update card labels
+        SwingUtilities.invokeLater(() -> {
+            // Update total budget displays
+            if (totalBudgetCard != null && totalBudgetCard.getComponentCount() > 1) {
+                ((JLabel) totalBudgetCard.getComponent(1)).setText(formattedTotal);
+            }
+            if (totalBudgetLabel != null) {
+                totalBudgetLabel.setText("Total Budget: " + formattedTotal);
+            }
+            
+            // Update remaining budget displays
+            if (remainingBudgetCard != null && remainingBudgetCard.getComponentCount() > 1) {
+                ((JLabel) remainingBudgetCard.getComponent(1)).setText(formattedRemaining);
+            }
+            if (remainingBudgetLabel != null) {
+                remainingBudgetLabel.setText("Remaining Budget: " + formattedRemaining);
+            }
+            
+            revalidate();
+            repaint();
+        });
     }
   private void allocateBudget(String sector) {
     if (sector.equals("Education")) {
