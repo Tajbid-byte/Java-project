@@ -739,33 +739,32 @@ private static class ModernScrollBarUI extends BasicScrollBarUI {
     }
 
     private JPanel createAnalysisPanel() {
-        // ... (existing implementation)
+        // Main panel with modern background
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(247, 249, 252)); // Soft light blue background
     
-        JLabel titleLabel = new JLabel("Analysis", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titleLabel.setForeground(new Color(90, 60, 150));
+        // Modern, clean title with subtle typography
+        JLabel titleLabel = new JLabel("Budget Analysis", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Inter", Font.BOLD, 28)); // Modern sans-serif font
+        titleLabel.setForeground(new Color(44, 62, 80)); // Dark blue-gray color
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
     
-        // Create a container with a GridLayout for equal-width columns
-        JPanel sectorPanelsContainer = new JPanel(new GridLayout(1, 2, 10, 0));
-        sectorPanelsContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
-        sectorPanelsContainer.setBackground(new Color(230, 240, 255));
+        // Refined container for sector panels with rounded corners
+        JPanel sectorPanelsContainer = new JPanel(new GridLayout(1, 2, 15, 0));
+        sectorPanelsContainer.setOpaque(false);
+        sectorPanelsContainer.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 30));
     
-        // Allocated panel on the left
-        JPanel allocatedPanel = new JPanel(new GridLayout(0, 1, 5, 5));
-        allocatedPanel.setBorder(BorderFactory.createTitledBorder("Allocated Sectors"));
-        allocatedPanel.setBackground(Color.decode("#e0ffe0"));
+        // Allocated panel with modern styling
+        JPanel allocatedPanel = createSectorPanel("Allocated Sectors", 
+            new Color(76, 175, 80, 20), new Color(76, 175, 80, 50));
     
-        // Non-allocated panel on the right
-        JPanel nonAllocatedPanel = new JPanel(new GridLayout(0, 1, 5, 5));
-        nonAllocatedPanel.setBorder(BorderFactory.createTitledBorder("Non-Allocated Sectors"));
-        nonAllocatedPanel.setBackground(Color.decode("#ffe0e0"));
+        // Non-allocated panel with modern styling
+        JPanel nonAllocatedPanel = createSectorPanel("Non-Allocated Sectors", 
+            new Color(244, 67, 54, 20), new Color(244, 67, 54, 50));
     
-        // Populate allocated and non-allocated panels with labels
+        // Populate panels with styled sector labels
         for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
-            JLabel sectorLabel = new JLabel(entry.getKey() + ": $" + entry.getValue());
-            sectorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-    
+            JLabel sectorLabel = createSectorLabel(entry.getKey(), entry.getValue());
             if (entry.getValue().compareTo(BigDecimal.ZERO) > 0) {
                 allocatedPanel.add(sectorLabel);
             } else {
@@ -773,48 +772,96 @@ private static class ModernScrollBarUI extends BasicScrollBarUI {
             }
         }
     
-        // Add both panels to the container for equal widths
         sectorPanelsContainer.add(allocatedPanel);
         sectorPanelsContainer.add(nonAllocatedPanel);
     
-        // Centered visualization button below the panels
-        JPanel visualizationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton visualizationButton = new JButton("Visualization");
-        visualizationButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        visualizationButton.setBackground(new Color(33, 150, 243));
-        visualizationButton.setForeground(Color.WHITE);
-        visualizationButton.setFocusPainted(false);
-        visualizationButton.setPreferredSize(new Dimension(150, 50)); // Adjust size as needed
+        // Modern visualization button with flat design and smooth transitions
+        JButton visualizationButton = createVisualizationButton();
     
-        // Add hover effect to the visualization button
-        Color originalColor = visualizationButton.getBackground();
-        visualizationButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                visualizationButton.setBackground(new Color(29, 255, 236)); // Hover color
-            }
-    
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                visualizationButton.setBackground(originalColor); // Revert to original color
-            }
-        });
-    
-        // Action listener for visualization button
-        visualizationButton.addActionListener(e -> {
-            showProgressBar();
-        });
-    
-        visualizationPanel.add(visualizationButton);
-    
-        // Add components to the main analysis panel
+        // Compose the final panel
         panel.add(titleLabel, BorderLayout.NORTH);
         panel.add(sectorPanelsContainer, BorderLayout.CENTER);
-        panel.add(visualizationPanel, BorderLayout.SOUTH);
+        panel.add(createVisualizationPanel(visualizationButton), BorderLayout.SOUTH);
     
         return panel;
     }
-
+    
+    // Helper method to create sector panels with modern styling
+    private JPanel createSectorPanel(String title, Color backgroundColor, Color borderColor) {
+        JPanel panel = new JPanel(new GridLayout(0, 1, 5, 10));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(borderColor, 2, true),
+            BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        ));
+        panel.setBackground(backgroundColor);
+        
+        TitledBorder titledBorder = BorderFactory.createTitledBorder(
+            BorderFactory.createEmptyBorder(), 
+            title
+        );
+        titledBorder.setTitleColor(new Color(44, 62, 80));
+        titledBorder.setTitleFont(new Font("Inter", Font.BOLD, 16));
+        panel.setBorder(titledBorder);
+    
+        return panel;
+    }
+    
+    // Helper method to create styled sector labels
+    private JLabel createSectorLabel(String key, BigDecimal value) {
+        JLabel sectorLabel = new JLabel(key + ": $" + value, SwingConstants.LEFT);
+        sectorLabel.setFont(new Font("Inter", Font.PLAIN, 14));
+        sectorLabel.setForeground(new Color(52, 73, 94));
+        return sectorLabel;
+    }
+    
+    // Create a modern visualization button
+    private JButton createVisualizationButton() {
+        JButton button = new JButton("View Visualization");
+        button.setFont(new Font("Inter", Font.BOLD, 16));
+        button.setBackground(new Color(33, 150, 243)); // Vibrant blue
+        button.setForeground(Color.WHITE);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setPreferredSize(new Dimension(250, 50));
+    
+        // Smooth hover and click effects
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            private Color originalBackground = button.getBackground();
+            
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(41, 182, 246)); // Lighter blue on hover
+            }
+            
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(originalBackground);
+            }
+            
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(25, 118, 210)); // Darker blue on click
+            }
+            
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                button.setBackground(originalBackground);
+            }
+        });
+    
+        button.addActionListener(e -> showProgressBar());
+        
+        return button;
+    }
+    
+    // Create visualization panel with centered button
+    private JPanel createVisualizationPanel(JButton visualizationButton) {
+        JPanel visualizationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 20));
+        visualizationPanel.setOpaque(false);
+        visualizationPanel.add(visualizationButton);
+        return visualizationPanel;
+    }
+    
     private void showProgressBar() {
         JPanel progressPanel = new JPanel();
         progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.Y_AXIS));
@@ -1320,77 +1367,101 @@ class ProfileSettingsPanel extends JPanel {
     private BudgetTrackerGUI parentFrame;
 
     public ProfileSettingsPanel(BudgetTrackerGUI parentFrame) {
+       
         this.parentFrame = parentFrame;
-        setLayout(new BorderLayout(0, 20));
+        setupPanel();
+    }
+
+    private void setupPanel() {
+        // Use a cleaner, more modern layout
+        setLayout(new BorderLayout(10, 10));
         setBackground(new Color(249, 250, 251));
-        setBorder(new EmptyBorder(30, 40, 30, 40));
+        setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        // Header
-        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        headerPanel.setOpaque(false);
-
-        ImageIcon userIcon = new ImageIcon("profileicon.png");
-        JLabel titleLabel = new JLabel("Profile Settings", userIcon, JLabel.LEFT);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        titleLabel.setForeground(new Color(17, 24, 39));
-
-        JLabel subtitleLabel = new JLabel("Update your profile information");
-        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        subtitleLabel.setForeground(new Color(107, 114, 128));
-
-        headerPanel.add(titleLabel);
-        headerPanel.add(Box.createHorizontalStrut(10));
-        headerPanel.add(subtitleLabel);
-
-        // Form fields
-        JPanel formPanel = new JPanel(new GridLayout(3, 1, 0, 16));
-        formPanel.setOpaque(false);
-
-        formPanel.add(createFormField("Full Name", "Enter your full name"));
-        formPanel.add(createFormField("Email", "Enter your email address"));
-        formPanel.add(createFormField("Contact Number", "Enter your contact number"));
-
-        // Buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        buttonPanel.setOpaque(false);
-
-        JButton exportButton = createStyledButton("Export Data", Color.WHITE, new Color(79, 70, 229));
-        exportButton.addActionListener(e -> exportDataToCSV());
-
-        buttonPanel.add(exportButton);
-
-        // Assemble the panel
+        // Header Panel with Modern Design
+        JPanel headerPanel = createHeaderPanel();
         add(headerPanel, BorderLayout.NORTH);
+
+        // Form Panel
+        JPanel formPanel = createFormPanel();
         add(formPanel, BorderLayout.CENTER);
+
+        // Button Panel
+        JPanel buttonPanel = createButtonPanel();
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private JPanel createFormField(String label, String placeholder) {
-        JPanel fieldPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 8));
-        fieldPanel.setOpaque(false);
+    private JPanel createHeaderPanel() {
+        JPanel headerPanel = new JPanel(new GridBagLayout());
+        headerPanel.setOpaque(false);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 0, 15, 0);
 
-        JLabel fieldLabel = new JLabel(label);
-        fieldLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        fieldLabel.setForeground(new Color(17, 24, 39));
-        fieldLabel.setPreferredSize(new Dimension(100, 40));
+        // Modern, clean title
+        JLabel titleLabel = new JLabel("Profile Settings");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        titleLabel.setForeground(new Color(17, 24, 39));
+        headerPanel.add(titleLabel, gbc);
 
-        JTextField textField = new JTextField(12);
-        textField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        gbc.gridy = 1;
+        JLabel subtitleLabel = new JLabel("Update and manage your profile information");
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitleLabel.setForeground(new Color(107, 114, 128));
+        headerPanel.add(subtitleLabel, gbc);
+
+        return headerPanel;
+    }
+
+    private JPanel createFormPanel() {
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setOpaque(false);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(10, 0, 10, 20);
+
+        // Name Field
+        formPanel.add(createLabel("Full Name"), gbc);
+        gbc.gridx = 1;
+        nameTextField = createTextField("Enter your full name");
+        formPanel.add(nameTextField, gbc);
+
+        // Email Field
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        formPanel.add(createLabel("Email"), gbc);
+        gbc.gridx = 1;
+        emailTextField = createTextField("Enter your email address");
+        formPanel.add(emailTextField, gbc);
+
+        // Contact Number Field
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        formPanel.add(createLabel("Contact Number"), gbc);
+        gbc.gridx = 1;
+        contactNumberTextField = createTextField("Enter your contact number");
+        formPanel.add(contactNumberTextField, gbc);
+
+        return formPanel;
+    }
+
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        label.setForeground(new Color(17, 24, 39));
+        return label;
+    }
+
+    private JTextField createTextField(String placeholder) {
+        JTextField textField = new JTextField(20);
         textField.setText(placeholder);
+        textField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         textField.setForeground(Color.GRAY);
-        textField.setPreferredSize(new Dimension(200, 40));
-
-        // Store reference to the text fields
-        if (label.equals("Full Name")) {
-            nameTextField = textField;
-        } else if (label.equals("Email")) {
-            emailTextField = textField;
-        } else if (label.equals("Contact Number")) {
-            contactNumberTextField = textField;
-        }
-
-        // Add placeholder behavior
-        textField.addFocusListener(new FocusListener() {
+        
+        textField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
                 if (textField.getText().equals(placeholder)) {
@@ -1408,53 +1479,72 @@ class ProfileSettingsPanel extends JPanel {
             }
         });
 
-        fieldPanel.add(fieldLabel);
-        fieldPanel.add(Box.createHorizontalStrut(16));
-        fieldPanel.add(textField);
+        // Modern text field styling
+        textField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(209, 213, 219), 1),
+            BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
 
-        return fieldPanel;
+        return textField;
     }
 
-    private JButton createStyledButton(String text, Color bgColor, Color fgColor) {
+    private JPanel createButtonPanel() {
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setOpaque(false);
+
+        JButton exportButton = createModernButton("Export Data", 
+            new Color(79, 70, 229),  // Primary color
+            Color.WHITE
+        );
+        exportButton.addActionListener(e -> exportDataToCSV());
+
+        buttonPanel.add(exportButton);
+        return buttonPanel;
+    }
+
+    private JButton createModernButton(String text, Color bgColor, Color fgColor) {
         JButton button = new JButton(text) {
             @Override
             protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+                                    RenderingHints.VALUE_ANTIALIAS_ON);
+                
                 if (getModel().isPressed()) {
-                    g.setColor(getBackground().darker());
+                    g2.setColor(bgColor.darker());
                 } else {
-                    g.setColor(getBackground());
+                    g2.setColor(bgColor);
                 }
-                g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 40, 40);
+                
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                g2.dispose();
                 super.paintComponent(g);
             }
         };
 
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(fgColor);
-        button.setBackground(bgColor);
-        button.setFocusPainted(false);
+        button.setPreferredSize(new Dimension(150, 40));
         button.setBorderPainted(false);
+        button.setFocusPainted(false);
         button.setContentAreaFilled(false);
         button.setOpaque(true);
-        button.setPreferredSize(new Dimension(150, 40));
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // Hover effect
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                button.setBackground(new Color(29, 255, 236)); // Hover color
+                button.setBackground(bgColor.brighter());
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                button.setBackground(bgColor); // Original color
+                button.setBackground(bgColor);
             }
         });
 
         return button;
     }
-
 
     private void exportDataToCSV() {
         // Validate input fields
