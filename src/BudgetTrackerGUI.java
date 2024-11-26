@@ -1398,22 +1398,32 @@ class ProfileSettingsPanel extends JPanel {
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0, 0, 15, 0);
-
+    
+        // Create a panel for title with icon
+        JPanel titleContainer = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        titleContainer.setOpaque(false);
+    
+        // Add an icon (replace with your actual icon)
+        ImageIcon icon = new ImageIcon(getClass().getResource("user.png")); // Placeholder icon
+        JLabel iconLabel = new JLabel(icon);
+        titleContainer.add(iconLabel);
+    
         // Modern, clean title
         JLabel titleLabel = new JLabel("Profile Settings");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setForeground(new Color(17, 24, 39));
-        headerPanel.add(titleLabel, gbc);
-
+        titleContainer.add(titleLabel);
+    
+        headerPanel.add(titleContainer, gbc);
+    
         gbc.gridy = 1;
         JLabel subtitleLabel = new JLabel("Update and manage your profile information");
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         subtitleLabel.setForeground(new Color(107, 114, 128));
         headerPanel.add(subtitleLabel, gbc);
-
+    
         return headerPanel;
     }
-
     private JPanel createFormPanel() {
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setOpaque(false);
