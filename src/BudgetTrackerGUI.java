@@ -1188,95 +1188,95 @@ private static class ModernScrollBarUI extends BasicScrollBarUI {
     }
 }
 
-private void showEducationSubsectorAllocation() {
-    JDialog dialog = new JDialog(this, "Education Subsector Allocation", true);
-    dialog.setLayout(new BorderLayout());
-    dialog.setSize(500, 400);
+    private void showEducationSubsectorAllocation() {
+        JDialog dialog = new JDialog(this, "Education Subsector Allocation", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(500, 400);
 
-    // Education Subsectors
-    String[] subsectors = {
-        "Primary and Mass Education", 
-        "Secondary and Higher Education", 
-        "Technical and Madrasa Education"
-    };
+        // Education Subsectors
+        String[] subsectors = {
+                "Primary and Mass Education",
+                "Secondary and Higher Education",
+                "Technical and Madrasa Education"
+        };
 
-    JPanel subsectorPanel = new JPanel(new GridLayout(subsectors.length, 2, 10, 10));
-    subsectorPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel subsectorPanel = new JPanel(new GridLayout(subsectors.length, 2, 10, 10));
+        subsectorPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-    Map<String, JTextField> subsectorAllocationFields = new HashMap<>();
+        Map<String, JTextField> subsectorAllocationFields = new HashMap<>();
 
-    for (String subsector : subsectors) {
-        JLabel label = new JLabel(subsector);
-        JTextField allocationField = new JTextField(10);
-        subsectorPanel.add(label);
-        subsectorPanel.add(allocationField);
-        subsectorAllocationFields.put(subsector, allocationField);
+        for (String subsector : subsectors) {
+            JLabel label = new JLabel(subsector);
+            JTextField allocationField = new JTextField(10);
+            subsectorPanel.add(label);
+            subsectorPanel.add(allocationField);
+            subsectorAllocationFields.put(subsector, allocationField);
+        }
+
+        JButton detailButton = new JButton("Detailed Allocation");
+        detailButton.addActionListener(e -> {
+            String selectedSubsector = (String) JOptionPane.showInputDialog(
+                    dialog,
+                    "Select Subsector for Detailed Allocation",
+                    "Detailed Allocation",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    subsectors,
+                    subsectors[0]
+            );
+
+            if (selectedSubsector != null) {
+                showDetailedEducationAllocation(selectedSubsector);
+            }
+        });
+
+        JButton allocateButton = new JButton("Allocate");
+        allocateButton.addActionListener(e -> {
+            try {
+                BigDecimal totalEducationAllocation = BigDecimal.ZERO;
+                for (JTextField field : subsectorAllocationFields.values()) {
+                    BigDecimal allocation = new BigDecimal(field.getText());
+                    totalEducationAllocation = totalEducationAllocation.add(allocation);
+                }
+
+                BigDecimal allocatedBudget = calculateAllocatedBudget();
+                BigDecimal potentialTotal = allocatedBudget.add(totalEducationAllocation);
+
+                if (potentialTotal.compareTo(totalBudget) > 0) {
+                    JOptionPane.showMessageDialog(dialog, "Allocation exceeds total budget limit.");
+                } else {
+                    // Update sectors with subsector allocations
+                    sectors.put("Education - Primary and Mass Education",
+                            new BigDecimal(subsectorAllocationFields.get("Primary and Mass Education").getText()));
+                    sectors.put("Education - Secondary and Higher Education",
+                            new BigDecimal(subsectorAllocationFields.get("Secondary and Higher Education").getText()));
+                    sectors.put("Education - Technical and Madrasa Education",
+                            new BigDecimal(subsectorAllocationFields.get("Technical and Madrasa Education").getText()));
+
+                    refreshAnalysisPanel();
+                    dialog.dispose();
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Invalid input. Please enter valid numbers.");
+            }
+        });
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(detailButton);
+        buttonPanel.add(allocateButton);
+
+        dialog.add(subsectorPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 
-    JButton detailButton = new JButton("Detailed Allocation");
-    detailButton.addActionListener(e -> {
-        String selectedSubsector = (String) JOptionPane.showInputDialog(
-            dialog, 
-            "Select Subsector for Detailed Allocation", 
-            "Detailed Allocation", 
-            JOptionPane.QUESTION_MESSAGE, 
-            null, 
-            subsectors, 
-            subsectors[0]
-        );
+    private void showDetailedEducationAllocation(String subsector) {
+        JDialog detailDialog = new JDialog(this, subsector + " - Detailed Allocation", true);
+        detailDialog.setLayout(new BorderLayout());
+        detailDialog.setSize(500, 400);
 
-        if (selectedSubsector != null) {
-            showDetailedEducationAllocation(selectedSubsector);
-        }
-    });
-
-    JButton allocateButton = new JButton("Allocate");
-    allocateButton.addActionListener(e -> {
-        try {
-            BigDecimal totalEducationAllocation = BigDecimal.ZERO;
-            for (JTextField field : subsectorAllocationFields.values()) {
-                BigDecimal allocation = new BigDecimal(field.getText());
-                totalEducationAllocation = totalEducationAllocation.add(allocation);
-            }
-
-            BigDecimal allocatedBudget = calculateAllocatedBudget();
-            BigDecimal potentialTotal = allocatedBudget.add(totalEducationAllocation);
-
-            if (potentialTotal.compareTo(totalBudget) > 0) {
-                JOptionPane.showMessageDialog(dialog, "Allocation exceeds total budget limit.");
-            } else {
-                // Update sectors with subsector allocations
-                sectors.put("Education - Primary and Mass Education", 
-                    new BigDecimal(subsectorAllocationFields.get("Primary and Mass Education").getText()));
-                sectors.put("Education - Secondary and Higher Education", 
-                    new BigDecimal(subsectorAllocationFields.get("Secondary and Higher Education").getText()));
-                sectors.put("Education - Technical and Madrasa Education", 
-                    new BigDecimal(subsectorAllocationFields.get("Technical and Madrasa Education").getText()));
-
-                refreshAnalysisPanel();
-                dialog.dispose();
-            }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(dialog, "Invalid input. Please enter valid numbers.");
-        }
-    });
-
-    JPanel buttonPanel = new JPanel(new FlowLayout());
-    buttonPanel.add(detailButton);
-    buttonPanel.add(allocateButton);
-
-    dialog.add(subsectorPanel, BorderLayout.CENTER);
-    dialog.add(buttonPanel, BorderLayout.SOUTH);
-    dialog.setLocationRelativeTo(this);
-    dialog.setVisible(true);
-}
-
-private void showDetailedEducationAllocation(String subsector) {
-    JDialog detailDialog = new JDialog(this, subsector + " - Detailed Allocation", true);
-    detailDialog.setLayout(new BorderLayout());
-    detailDialog.setSize(500, 400);
-
-    Map<String, BigDecimal> detailedAllocations = new HashMap<>();
+        Map<String, BigDecimal> detailedAllocations = new HashMap<>();
 
     switch (subsector) {
         case "Technical and Madrasa Education":
