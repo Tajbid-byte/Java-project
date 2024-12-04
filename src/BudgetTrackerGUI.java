@@ -1599,22 +1599,22 @@ class ProfileSettingsPanel extends JPanel {
                 // Write sector allocations
                 writer.write("Sector Allocations\n");
                 writer.write("Sector,Allocated Amount\n");
-                
+
                 @SuppressWarnings("unchecked")
                 Map<String, BigDecimal> sectors = (Map<String, BigDecimal>) budgetInfo.get("Sector Allocations");
                 for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
                     writer.write(entry.getKey() + "," + entry.getValue() + "\n");
                 }
 
-                JOptionPane.showMessageDialog(this, 
-                    "Data exported successfully!", 
-                    "Export", 
-                    JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Data exported successfully!",
+                        "Export",
+                        JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, 
-                    "Error exporting data: " + e.getMessage(), 
-                    "Export Error", 
-                    JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Error exporting data: " + e.getMessage(),
+                        "Export Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
