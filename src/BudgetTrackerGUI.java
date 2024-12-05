@@ -563,7 +563,7 @@ private JButton createStyledButton(String text) {
 
     private JPanel createSettingsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(new Color(249, 250, 251));
+        panel.setBackground(new Color(250, 250, 250));
     
         // Title Panel
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
