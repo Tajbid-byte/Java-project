@@ -1,27 +1,27 @@
+// java_built_in-classes
+
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 import javax.swing.plaf.basic.BasicScrollBarUI;
-import java.awt.event.*;
-import java.awt.*;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.awt.geom.Ellipse2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.IOException;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.RoundRectangle2D;
 
 public class BudgetTrackerGUI extends JFrame {
-    // ... (previous existing code remains the same)
+    // ... (previous existing code remains the same here)
+    
     private CardLayout cardLayout;
     private JPanel mainPanel;
     private Map<String, BigDecimal> sectors;
