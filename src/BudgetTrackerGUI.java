@@ -565,12 +565,12 @@ private JButton createStyledButton(String text) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(new Color(250, 250, 250));
     
-        // Title Panel
+        // Tittle Panel
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         titlePanel.setOpaque(false);
-        JLabel titleLabel = new JLabel("App Settings", SwingConstants.LEFT);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        titleLabel.setForeground(new Color(17, 24, 39));
+        JLabel titleLabel = new JLabel("App Setting", SwingConstants.LEFT);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 30));
+        titleLabel.setForeground(new Color(16, 28, 36));
         titlePanel.add(titleLabel);
     
         // Settings Categories Panel
