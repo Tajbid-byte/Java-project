@@ -601,6 +601,10 @@ private JButton createStyledButton(String text) {
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
         settingsCategoriesPanel.add(createSettingsSection("Notifications", 
             new String[]{"Budget Alerts", "Expense Reminders", "Monthly Summary","Yearly Summary"}));
+
+            settingsCategoriesPanel.add(createSettingsSection("Advanced Settings", 
+        new String[]{"Developer Mode", "Activity Logs", "App Optimization"}));
+        settingsCategoriesPanel.add(Box.createVerticalStrut(10));
     
         // Action Buttons Panel
         JPanel actionButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
