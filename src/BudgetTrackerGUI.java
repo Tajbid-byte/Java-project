@@ -600,7 +600,7 @@ private JButton createStyledButton(String text) {
             new String[]{"Data Export Settings", "Backup & Restore","Two-Factor Authentication", "Reset Application"}));
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
         settingsCategoriesPanel.add(createSettingsSection("Notifications", 
-            new String[]{"Budget Alerts", "Expense Reminders", "Monthly Summary"}));
+            new String[]{"Budget Alerts", "Expense Reminders", "Monthly Summary","Yearly Summary"}));
     
         // Action Buttons Panel
         JPanel actionButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
