@@ -654,18 +654,21 @@ private JButton createStyledButton(String text) {
             JLabel settingLabel = new JLabel(setting);
             settingLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
     
-            JToggleButton toggleButton = new JToggleButton("Off");
+            JToggleButton toggleButton = new JToggleButton("OFF");
             toggleButton.setPreferredSize(new Dimension(70, 30));
-            toggleButton.setBackground(Color.LIGHT_GRAY);
+            
+            // Set initial styles
+            toggleButton.setBackground(Color.RED);
             toggleButton.setForeground(Color.WHITE);
+            toggleButton.setFocusPainted(false);
     
             toggleButton.addActionListener(e -> {
                 if (toggleButton.isSelected()) {
-                    toggleButton.setText("On");
-                    toggleButton.setBackground(new Color(79, 70, 229));
+                    toggleButton.setText("ON");
+                    toggleButton.setBackground(Color.green);
                 } else {
-                    toggleButton.setText("Off");
-                    toggleButton.setBackground(Color.LIGHT_GRAY);
+                    toggleButton.setText("OFF");
+                    toggleButton.setBackground(Color.RED);
                 }
             });
     
