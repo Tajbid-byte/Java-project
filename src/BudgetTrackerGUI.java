@@ -584,9 +584,9 @@ private JButton createStyledButton(String text) {
             new String[]{"Default Budget Allocation", "Spending Alerts", "Budget Rollover"}));
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
 
-settingsCategoriesPanel.add(createSettingsSection("Budget Preferences", 
-            new String[]{"Default Budget Allocation", "Spending Alerts", "Budget Rollover"}));
-        settingsCategoriesPanel.add(Box.createVerticalStrut(10));
+        settingsCategoriesPanel.add(createSettingsSection("Language & Region", 
+        new String[]{"Default Budget Allocation", "Spending Alerts", "Budget Rollover"}));
+    settingsCategoriesPanel.add(Box.createVerticalStrut(10));
 
         settingsCategoriesPanel.add(createSettingsSection("Appearance", 
             new String[]{"Theme Selection", "Color Scheme", "Font Size"}));
