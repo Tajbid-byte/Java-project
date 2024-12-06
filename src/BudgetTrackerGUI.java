@@ -1,28 +1,26 @@
+// java_built_in-classes
+
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 import javax.swing.plaf.basic.BasicScrollBarUI;
-import java.awt.event.*;
-import java.awt.*;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.awt.geom.Ellipse2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.IOException;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.RoundRectangle2D;
 
 public class BudgetTrackerGUI extends JFrame {
     // ... (previous existing code remains the same)
-    private boolean isAdmin;
     private CardLayout cardLayout;
     private JPanel mainPanel;
     private Map<String, BigDecimal> sectors;
@@ -515,69 +513,69 @@ private JButton createStyledButton(String text) {
     return button;
 }
 
-// Custom rounded border class
-private static class RoundedBorder extends LineBorder {
-    private final int radius;
+    // Custom rounded border class
+    private static class RoundedBorder extends LineBorder {
+        private final int radius;
 
-    RoundedBorder(int radius) {
-        super(new Color(230, 230, 230));
-        this.radius = radius;
+        RoundedBorder(int radius) {
+            super(new Color(230, 230, 230));
+            this.radius = radius;
+        }
+
+        @Override
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(lineColor);
+            g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
+            g2.dispose();
+        }
     }
 
-    @Override
-    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(lineColor);
-        g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
-        g2.dispose();
-    }
-}
+    // Modern ScrollBar UI
+    private static class ModernScrollBarUI extends BasicScrollBarUI {
+        @Override
+        protected void configureScrollBarColors() {
+            this.thumbColor = ACCENT_COLOR;
+            this.trackColor = BACKGROUND_COLOR;
+        }
 
-// Modern ScrollBar UI
-private static class ModernScrollBarUI extends BasicScrollBarUI {
-    @Override
-    protected void configureScrollBarColors() {
-        this.thumbColor = ACCENT_COLOR;
-        this.trackColor = BACKGROUND_COLOR;
-    }
+        @Override
+        protected JButton createDecreaseButton(int orientation) {
+            return createZeroButton();
+        }
 
-    @Override
-    protected JButton createDecreaseButton(int orientation) {
-        return createZeroButton();
-    }
+        @Override
+        protected JButton createIncreaseButton(int orientation) {
+            return createZeroButton();
+        }
 
-    @Override
-    protected JButton createIncreaseButton(int orientation) {
-        return createZeroButton();
-    }
+        private JButton createZeroButton() {
+            JButton button = new JButton();
+            button.setPreferredSize(new Dimension(0, 0));
+            return button;
+        }
 
-    private JButton createZeroButton() {
-        JButton button = new JButton();
-        button.setPreferredSize(new Dimension(0, 0));
-        return button;
+        @Override
+        protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(thumbColor);
+            g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 4, 4);
+            g2.dispose();
+        }
     }
-
-    @Override
-    protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(thumbColor);
-        g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 4, 4);
-        g2.dispose();
-    }
-}
 
     private JPanel createSettingsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(new Color(249, 250, 251));
+        panel.setBackground(new Color(250, 250, 250));
     
-        // Title Panel
+        // Tittle Panel
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         titlePanel.setOpaque(false);
         JLabel titleLabel = new JLabel("App Settings", SwingConstants.LEFT);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        titleLabel.setForeground(new Color(17, 24, 39));
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 30));
+        titleLabel.setForeground(new Color(16, 28, 36));
         titlePanel.add(titleLabel);
     
         // Settings Categories Panel
@@ -1195,95 +1193,95 @@ private static class ModernScrollBarUI extends BasicScrollBarUI {
     }
 }
 
-private void showEducationSubsectorAllocation() {
-    JDialog dialog = new JDialog(this, "Education Subsector Allocation", true);
-    dialog.setLayout(new BorderLayout());
-    dialog.setSize(500, 400);
+    private void showEducationSubsectorAllocation() {
+        JDialog dialog = new JDialog(this, "Education Subsector Allocation", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(500, 400);
 
-    // Education Subsectors
-    String[] subsectors = {
-        "Primary and Mass Education", 
-        "Secondary and Higher Education", 
-        "Technical and Madrasa Education"
-    };
+        // Education Subsectors
+        String[] subsectors = {
+                "Primary and Mass Education",
+                "Secondary and Higher Education",
+                "Technical and Madrasa Education"
+        };
 
-    JPanel subsectorPanel = new JPanel(new GridLayout(subsectors.length, 2, 10, 10));
-    subsectorPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel subsectorPanel = new JPanel(new GridLayout(subsectors.length, 2, 10, 10));
+        subsectorPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-    Map<String, JTextField> subsectorAllocationFields = new HashMap<>();
+        Map<String, JTextField> subsectorAllocationFields = new HashMap<>();
 
-    for (String subsector : subsectors) {
-        JLabel label = new JLabel(subsector);
-        JTextField allocationField = new JTextField(10);
-        subsectorPanel.add(label);
-        subsectorPanel.add(allocationField);
-        subsectorAllocationFields.put(subsector, allocationField);
+        for (String subsector : subsectors) {
+            JLabel label = new JLabel(subsector);
+            JTextField allocationField = new JTextField(10);
+            subsectorPanel.add(label);
+            subsectorPanel.add(allocationField);
+            subsectorAllocationFields.put(subsector, allocationField);
+        }
+
+        JButton detailButton = new JButton("Detailed Allocation");
+        detailButton.addActionListener(e -> {
+            String selectedSubsector = (String) JOptionPane.showInputDialog(
+                    dialog,
+                    "Select Subsector for Detailed Allocation",
+                    "Detailed Allocation",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    subsectors,
+                    subsectors[0]
+            );
+
+            if (selectedSubsector != null) {
+                showDetailedEducationAllocation(selectedSubsector);
+            }
+        });
+
+        JButton allocateButton = new JButton("Allocate");
+        allocateButton.addActionListener(e -> {
+            try {
+                BigDecimal totalEducationAllocation = BigDecimal.ZERO;
+                for (JTextField field : subsectorAllocationFields.values()) {
+                    BigDecimal allocation = new BigDecimal(field.getText());
+                    totalEducationAllocation = totalEducationAllocation.add(allocation);
+                }
+
+                BigDecimal allocatedBudget = calculateAllocatedBudget();
+                BigDecimal potentialTotal = allocatedBudget.add(totalEducationAllocation);
+
+                if (potentialTotal.compareTo(totalBudget) > 0) {
+                    JOptionPane.showMessageDialog(dialog, "Allocation exceeds total budget limit.");
+                } else {
+                    // Update sectors with subsector allocations
+                    sectors.put("Education - Primary and Mass Education",
+                            new BigDecimal(subsectorAllocationFields.get("Primary and Mass Education").getText()));
+                    sectors.put("Education - Secondary and Higher Education",
+                            new BigDecimal(subsectorAllocationFields.get("Secondary and Higher Education").getText()));
+                    sectors.put("Education - Technical and Madrasa Education",
+                            new BigDecimal(subsectorAllocationFields.get("Technical and Madrasa Education").getText()));
+
+                    refreshAnalysisPanel();
+                    dialog.dispose();
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Invalid input. Please enter valid numbers.");
+            }
+        });
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(detailButton);
+        buttonPanel.add(allocateButton);
+
+        dialog.add(subsectorPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 
-    JButton detailButton = new JButton("Detailed Allocation");
-    detailButton.addActionListener(e -> {
-        String selectedSubsector = (String) JOptionPane.showInputDialog(
-            dialog, 
-            "Select Subsector for Detailed Allocation", 
-            "Detailed Allocation", 
-            JOptionPane.QUESTION_MESSAGE, 
-            null, 
-            subsectors, 
-            subsectors[0]
-        );
+    private void showDetailedEducationAllocation(String subsector) {
+        JDialog detailDialog = new JDialog(this, subsector + " - Detailed Allocation", true);
+        detailDialog.setLayout(new BorderLayout());
+        detailDialog.setSize(500, 400);
 
-        if (selectedSubsector != null) {
-            showDetailedEducationAllocation(selectedSubsector);
-        }
-    });
-
-    JButton allocateButton = new JButton("Allocate");
-    allocateButton.addActionListener(e -> {
-        try {
-            BigDecimal totalEducationAllocation = BigDecimal.ZERO;
-            for (JTextField field : subsectorAllocationFields.values()) {
-                BigDecimal allocation = new BigDecimal(field.getText());
-                totalEducationAllocation = totalEducationAllocation.add(allocation);
-            }
-
-            BigDecimal allocatedBudget = calculateAllocatedBudget();
-            BigDecimal potentialTotal = allocatedBudget.add(totalEducationAllocation);
-
-            if (potentialTotal.compareTo(totalBudget) > 0) {
-                JOptionPane.showMessageDialog(dialog, "Allocation exceeds total budget limit.");
-            } else {
-                // Update sectors with subsector allocations
-                sectors.put("Education - Primary and Mass Education", 
-                    new BigDecimal(subsectorAllocationFields.get("Primary and Mass Education").getText()));
-                sectors.put("Education - Secondary and Higher Education", 
-                    new BigDecimal(subsectorAllocationFields.get("Secondary and Higher Education").getText()));
-                sectors.put("Education - Technical and Madrasa Education", 
-                    new BigDecimal(subsectorAllocationFields.get("Technical and Madrasa Education").getText()));
-
-                refreshAnalysisPanel();
-                dialog.dispose();
-            }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(dialog, "Invalid input. Please enter valid numbers.");
-        }
-    });
-
-    JPanel buttonPanel = new JPanel(new FlowLayout());
-    buttonPanel.add(detailButton);
-    buttonPanel.add(allocateButton);
-
-    dialog.add(subsectorPanel, BorderLayout.CENTER);
-    dialog.add(buttonPanel, BorderLayout.SOUTH);
-    dialog.setLocationRelativeTo(this);
-    dialog.setVisible(true);
-}
-
-private void showDetailedEducationAllocation(String subsector) {
-    JDialog detailDialog = new JDialog(this, subsector + " - Detailed Allocation", true);
-    detailDialog.setLayout(new BorderLayout());
-    detailDialog.setSize(500, 400);
-
-    Map<String, BigDecimal> detailedAllocations = new HashMap<>();
+        Map<String, BigDecimal> detailedAllocations = new HashMap<>();
 
     switch (subsector) {
         case "Technical and Madrasa Education":
@@ -1606,22 +1604,22 @@ class ProfileSettingsPanel extends JPanel {
                 // Write sector allocations
                 writer.write("Sector Allocations\n");
                 writer.write("Sector,Allocated Amount\n");
-                
+
                 @SuppressWarnings("unchecked")
                 Map<String, BigDecimal> sectors = (Map<String, BigDecimal>) budgetInfo.get("Sector Allocations");
                 for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
                     writer.write(entry.getKey() + "," + entry.getValue() + "\n");
                 }
 
-                JOptionPane.showMessageDialog(this, 
-                    "Data exported successfully!", 
-                    "Export", 
-                    JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Data exported successfully!",
+                        "Export",
+                        JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, 
-                    "Error exporting data: " + e.getMessage(), 
-                    "Export Error", 
-                    JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Error exporting data: " + e.getMessage(),
+                        "Export Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
