@@ -20,8 +20,7 @@ import javax.swing.plaf.basic.BasicProgressBarUI;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
 public class BudgetTrackerGUI extends JFrame {
-    // ... (previous existing code remains the same here)
-    
+    // ... (previous existing code remains the same)
     private CardLayout cardLayout;
     private JPanel mainPanel;
     private Map<String, BigDecimal> sectors;
@@ -361,29 +360,35 @@ private JPanel createQuickActionsPanel() {
 }
 
 private JButton createQuickActionButton(String text, String icon) {
-    JButton button = new JButton("<html><center>" + icon + "<br>" + text + "</center></html>");
-    button.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    JButton button = new JButton("<html><div style='text-align:center;'>" + 
+                                  "<font size='5'>" + icon + "</font><br>" + 
+                                  "<font size='3'>" + text + "</font>" + 
+                                  "</div></html>") {
+        // Custom painting for hover effect
+        @Override
+        protected void paintComponent(Graphics g) {
+            // If mouse is over the button, adjust background and text
+            if (getModel().isRollover()) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(new Color(63, 81, 181, 30)); // Light highlight
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.dispose();
+            }
+            super.paintComponent(g);
+        }
+    };
+    
+    button.setFont(new Font("Segoe UI", Font.PLAIN, 12));
     button.setForeground(PRIMARY_COLOR);
     button.setBackground(CARD_COLOR);
     button.setBorder(BorderFactory.createCompoundBorder(
         new LineBorder(new Color(63, 81, 181, 50), 1, true),
-        new EmptyBorder(15, 15, 15, 15)
+        new EmptyBorder(10, 15, 10, 15)
     ));
     button.setFocusPainted(false);
+    button.setContentAreaFilled(false);
     button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    
-    // Add hover effect
-    button.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseEntered(MouseEvent e) {
-            button.setBackground(new Color(63, 81, 181, 20));
-        }
-        
-        @Override
-        public void mouseExited(MouseEvent e) {
-            button.setBackground(CARD_COLOR);
-        }
-    });
+    button.setPreferredSize(new Dimension(120, 80)); // Fixed size to prevent overlap
     
     return button;
 }
