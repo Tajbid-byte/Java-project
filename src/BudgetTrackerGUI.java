@@ -579,7 +579,7 @@ private JButton createStyledButton(String text) {
         settingsCategoriesPanel.setBorder(new EmptyBorder(20, 40, 20, 40));
         settingsCategoriesPanel.setBackground(new Color(249, 250, 251));
     
-        // Create individual setting sections
+        // Create individual setting section
         settingsCategoriesPanel.add(createSettingsSection("Budget Preferences", 
             new String[]{"Default Budget Allocation", "Spending Alerts", "Budget Rollover"}));
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
