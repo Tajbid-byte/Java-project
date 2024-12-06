@@ -583,11 +583,16 @@ private JButton createStyledButton(String text) {
         settingsCategoriesPanel.add(createSettingsSection("Budget Preferences", 
             new String[]{"Default Budget Allocation", "Spending Alerts", "Budget Rollover"}));
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
+
+settingsCategoriesPanel.add(createSettingsSection("Budget Preferences", 
+            new String[]{"Default Budget Allocation", "Spending Alerts", "Budget Rollover"}));
+        settingsCategoriesPanel.add(Box.createVerticalStrut(10));
+
         settingsCategoriesPanel.add(createSettingsSection("Appearance", 
             new String[]{"Theme Selection", "Color Scheme", "Font Size"}));
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
         settingsCategoriesPanel.add(createSettingsSection("Privacy & Security", 
-            new String[]{"Data Export Settings", "Backup & Restore", "Reset Application"}));
+            new String[]{"Data Export Settings", "Backup & Restore","Two-Factor Authentication", "Reset Application"}));
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
         settingsCategoriesPanel.add(createSettingsSection("Notifications", 
             new String[]{"Budget Alerts", "Expense Reminders", "Monthly Summary"}));
