@@ -585,7 +585,7 @@ private JButton createStyledButton(String text) {
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
 
         settingsCategoriesPanel.add(createSettingsSection("Language & Region", 
-        new String[]{"Language Selection", "Spending Alerts", "Budget Rollover"}));
+        new String[]{"Language Selection", "Currency Settings", "Regional Formats"}));
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
 
         settingsCategoriesPanel.add(createSettingsSection("Appearance", 
