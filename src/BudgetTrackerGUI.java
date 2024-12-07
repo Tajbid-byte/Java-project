@@ -576,18 +576,27 @@ private JButton createStyledButton(String text) {
         settingsCategoriesPanel.setBorder(new EmptyBorder(20, 40, 20, 40));
         settingsCategoriesPanel.setBackground(new Color(249, 250, 251));
     
-        // Create individual setting sections
+        // Create individual setting section
         settingsCategoriesPanel.add(createSettingsSection("Budget Preferences", 
             new String[]{"Default Budget Allocation", "Spending Alerts", "Budget Rollover"}));
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
+
+        settingsCategoriesPanel.add(createSettingsSection("Language & Region", 
+        new String[]{"Language Selection", "Currency Settings", "Regional Formats"}));
+        settingsCategoriesPanel.add(Box.createVerticalStrut(10));
+
         settingsCategoriesPanel.add(createSettingsSection("Appearance", 
             new String[]{"Theme Selection", "Color Scheme", "Font Size"}));
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
         settingsCategoriesPanel.add(createSettingsSection("Privacy & Security", 
-            new String[]{"Data Export Settings", "Backup & Restore", "Reset Application"}));
+            new String[]{"Data Export Settings", "Backup & Restore","Two-Factor Authentication", "Reset Application"}));
         settingsCategoriesPanel.add(Box.createVerticalStrut(10));
         settingsCategoriesPanel.add(createSettingsSection("Notifications", 
-            new String[]{"Budget Alerts", "Expense Reminders", "Monthly Summary"}));
+            new String[]{"Budget Alerts", "Expense Reminders", "Monthly Summary","Yearly Summary"}));
+
+            settingsCategoriesPanel.add(createSettingsSection("Advanced Settings", 
+        new String[]{"Developer Mode", "Activity Logs", "App Optimization"}));
+        settingsCategoriesPanel.add(Box.createVerticalStrut(10));
     
         // Action Buttons Panel
         JPanel actionButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
@@ -637,18 +646,21 @@ private JButton createStyledButton(String text) {
             JLabel settingLabel = new JLabel(setting);
             settingLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
     
-            JToggleButton toggleButton = new JToggleButton("Off");
+            JToggleButton toggleButton = new JToggleButton("OFF");
             toggleButton.setPreferredSize(new Dimension(70, 30));
-            toggleButton.setBackground(Color.LIGHT_GRAY);
+            
+            // Set initial styles
+            toggleButton.setBackground(Color.RED);
             toggleButton.setForeground(Color.WHITE);
+            toggleButton.setFocusPainted(false);
     
             toggleButton.addActionListener(e -> {
                 if (toggleButton.isSelected()) {
-                    toggleButton.setText("On");
-                    toggleButton.setBackground(new Color(79, 70, 229));
+                    toggleButton.setText("ON");
+                    toggleButton.setBackground(Color.green);
                 } else {
-                    toggleButton.setText("Off");
-                    toggleButton.setBackground(Color.LIGHT_GRAY);
+                    toggleButton.setText("OFF");
+                    toggleButton.setBackground(Color.RED);
                 }
             });
     
