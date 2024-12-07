@@ -29,7 +29,13 @@ public class BudgetTrackerGUI extends JFrame {
     private JPanel analysisPanel; // Store reference to Analysis panel for refreshing
     private JPanel sidebar; // Sidebar panel to be added later
   
-  
+    private JPanel totalBudgetCard;
+    private JPanel remainingBudgetCard;
+    private static final Color PRIMARY_COLOR = new Color(63, 81, 181);    // Material Indigo
+    private static final Color ACCENT_COLOR = new Color(3, 169, 244);     // Material Light Blue
+    private static final Color HOVER_COLOR = new Color(83, 109, 254);     // Lighter Indigo
+    private static final Color BACKGROUND_COLOR = new Color(237, 241, 247);
+    private static final Color CARD_COLOR = new Color(255, 255, 255);
     
     public BudgetTrackerGUI() {
         this.totalBudget = BigDecimal.ZERO;
