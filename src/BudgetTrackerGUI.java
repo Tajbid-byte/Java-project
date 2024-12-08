@@ -1,4 +1,42 @@
+// java_built_in-classes
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.plaf.basic.BasicProgressBarUI;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 
+public class BudgetTrackerGUI extends JFrame {
+    // ... (previous existing code remains the same)
+    private CardLayout cardLayout;
+    private JPanel mainPanel;
+    private Map<String, BigDecimal> sectors;
+    private BigDecimal totalBudget;
+    private JLabel totalBudgetLabel;
+    private JLabel remainingBudgetLabel;
+    private JPanel analysisPanel; // Store reference to Analysis panel for refreshing
+    private JPanel sidebar; // Sidebar panel to be added later
+  
+    private JPanel totalBudgetCard;
+    private JPanel remainingBudgetCard;
+    private static final Color PRIMARY_COLOR = new Color(63, 81, 181);    // Material Indigo
+    private static final Color ACCENT_COLOR = new Color(3, 169, 244);     // Material Light Blue
+    private static final Color HOVER_COLOR = new Color(83, 109, 254);     // Lighter Indigo
+    private static final Color BACKGROUND_COLOR = new Color(237, 241, 247);
+    private static final Color CARD_COLOR = new Color(255, 255, 255);
+    
     public BudgetTrackerGUI() {
         this.totalBudget = BigDecimal.ZERO;
         this.sectors = new LinkedHashMap<>();
