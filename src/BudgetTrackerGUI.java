@@ -757,26 +757,26 @@ private JButton createStyledButton(String text) {
         // Main panel with modern background
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(new Color(247, 249, 252)); // Soft light blue background
-    
+
         // Modern, clean title with subtle typography
         JLabel titleLabel = new JLabel("Budget Analysis", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Inter", Font.BOLD, 28)); // Modern sans-serif font
         titleLabel.setForeground(new Color(44, 62, 80)); // Dark blue-gray color
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
-    
+
         // Refined container for sector panels with rounded corners
         JPanel sectorPanelsContainer = new JPanel(new GridLayout(1, 2, 15, 0));
         sectorPanelsContainer.setOpaque(false);
         sectorPanelsContainer.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 30));
-    
+
         // Allocated panel with modern styling
-        JPanel allocatedPanel = createSectorPanel("Allocated Sectors", 
-            new Color(76, 175, 80, 20), new Color(76, 175, 80, 50));
-    
+        JPanel allocatedPanel = createSectorPanel("Allocated Sectors",
+                new Color(76, 175, 80, 20), new Color(76, 175, 80, 50));
+
         // Non-allocated panel with modern styling
-        JPanel nonAllocatedPanel = createSectorPanel("Non-Allocated Sectors", 
-            new Color(244, 67, 54, 20), new Color(244, 67, 54, 50));
-    
+        JPanel nonAllocatedPanel = createSectorPanel("Non-Allocated Sectors",
+                new Color(244, 67, 54, 20), new Color(244, 67, 54, 50));
+
         // Populate panels with styled sector labels
         for (Map.Entry<String, BigDecimal> entry : sectors.entrySet()) {
             JLabel sectorLabel = createSectorLabel(entry.getKey(), entry.getValue());
@@ -786,41 +786,41 @@ private JButton createStyledButton(String text) {
                 nonAllocatedPanel.add(sectorLabel);
             }
         }
-    
+
         sectorPanelsContainer.add(allocatedPanel);
         sectorPanelsContainer.add(nonAllocatedPanel);
-    
+
         // Modern visualization button with flat design and smooth transitions
         JButton visualizationButton = createVisualizationButton();
-    
+
         // Compose the final panel
         panel.add(titleLabel, BorderLayout.NORTH);
         panel.add(sectorPanelsContainer, BorderLayout.CENTER);
         panel.add(createVisualizationPanel(visualizationButton), BorderLayout.SOUTH);
-    
+
         return panel;
     }
-    
+
     // Helper method to create sector panels with modern styling
     private JPanel createSectorPanel(String title, Color backgroundColor, Color borderColor) {
         JPanel panel = new JPanel(new GridLayout(0, 1, 5, 10));
         panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(borderColor, 2, true),
-            BorderFactory.createEmptyBorder(15, 15, 15, 15)
+                BorderFactory.createLineBorder(borderColor, 2, true),
+                BorderFactory.createEmptyBorder(15, 15, 15, 15)
         ));
         panel.setBackground(backgroundColor);
-        
+
         TitledBorder titledBorder = BorderFactory.createTitledBorder(
-            BorderFactory.createEmptyBorder(), 
-            title
+                BorderFactory.createEmptyBorder(),
+                title
         );
         titledBorder.setTitleColor(new Color(44, 62, 80));
         titledBorder.setTitleFont(new Font("Inter", Font.BOLD, 16));
         panel.setBorder(titledBorder);
-    
+
         return panel;
     }
-    
+
     // Helper method to create styled sector labels
     private JLabel createSectorLabel(String key, BigDecimal value) {
         JLabel sectorLabel = new JLabel(key + ": $" + value, SwingConstants.LEFT);
@@ -828,7 +828,7 @@ private JButton createStyledButton(String text) {
         sectorLabel.setForeground(new Color(52, 73, 94));
         return sectorLabel;
     }
-    
+
     // Create a modern visualization button
     private JButton createVisualizationButton() {
         JButton button = new JButton("View Visualization");
@@ -836,39 +836,40 @@ private JButton createStyledButton(String text) {
         button.setBackground(new Color(33, 150, 243)); // Vibrant blue
         button.setForeground(Color.WHITE);
         button.setBorderPainted(false);
+
         button.setFocusPainted(false);
         button.setPreferredSize(new Dimension(250, 50));
-    
+
         // Smooth hover and click effects
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             private Color originalBackground = button.getBackground();
-            
+
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 button.setBackground(new Color(41, 182, 246)); // Lighter blue on hover
             }
-            
+
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 button.setBackground(originalBackground);
             }
-            
+
             @Override
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 button.setBackground(new Color(25, 118, 210)); // Darker blue on click
             }
-            
+
             @Override
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 button.setBackground(originalBackground);
             }
         });
-    
+
         button.addActionListener(e -> showProgressBar());
-        
+
         return button;
     }
-    
+
     // Create visualization panel with centered button
     private JPanel createVisualizationPanel(JButton visualizationButton) {
         JPanel visualizationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 20));
@@ -876,7 +877,7 @@ private JButton createStyledButton(String text) {
         visualizationPanel.add(visualizationButton);
         return visualizationPanel;
     }
-    
+
     private void showProgressBar() {
         JPanel progressPanel = new JPanel();
         progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.Y_AXIS));
