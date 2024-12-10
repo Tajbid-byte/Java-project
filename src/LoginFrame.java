@@ -9,28 +9,6 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import java.util.regex.Pattern;
 
-public class LoginFrame extends JFrame {
-    private Map<String, String> users = new HashMap<>();
-    private final String userFilePath = "users.txt"; // File to store user data
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-
-    public LoginFrame() {
-        loadUsers();
-        setTitle("LoginFrame");
-        setSize(600, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setResizable(true);
-        setUndecorated(false);
-
-        // Set a custom background image
-        try {
-            BufferedImage backgroundImage = ImageIO.read(new File("wallpaper.jpg"));
-            setContentPane(new ImagePanel(backgroundImage));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         panel.setLayout(new GridBagLayout());
