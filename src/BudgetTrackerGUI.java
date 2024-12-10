@@ -750,9 +750,9 @@ private void resetToDefaultSettings() {
                         for (Component component : rowPanel.getComponents()) {
                             if (component instanceof JToggleButton) {
                                 JToggleButton toggleButton = (JToggleButton) component;
-                                toggleButton.setSelected(false);
-                                toggleButton.setText("OFF");
-                                toggleButton.setBackground(Color.RED);
+                                toggleButton.setSelected(false); // Ensure it is reset to OFF
+                                toggleButton.setText("OFF");     // Reset text to OFF
+                                toggleButton.setBackground(Color.RED); // Reset color to red (OFF)
                             }
                         }
                     }
@@ -765,6 +765,7 @@ private void resetToDefaultSettings() {
             JOptionPane.INFORMATION_MESSAGE);
     }
 }
+
 
 
     private void refreshAnalysisPanel() {
